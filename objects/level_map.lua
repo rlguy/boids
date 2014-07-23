@@ -71,6 +71,7 @@ function level_map:new(level)
   map.camera_bbox = bbox:new(cpos.x, cpos.y, cw, ch)
   
   map.loaded_maps = {}
+  map.adjacent_maps = {}
   
   map.collider = level_collider:new(level, map)
   map.collider_objects_storage = {}
@@ -238,7 +239,6 @@ function level_map:_find_adjacent_tile_maps(tile_map)
       adj_list[#adj_list + 1] = {other, tmap_side, other_side}
     end
   end
-  
   return adj_list
 end
 
@@ -331,11 +331,10 @@ function level_map:update(dt)
   local current_map = self:_get_current_map()
   self.current_map = current_map
   
-  local adjacent_maps = {}
+  local adjacent_maps = self.adjacent_maps
   if current_map then
-    adjacent_maps = current_map.neighbours
+    table.copy(current_map.neighbours, adjacent_maps)
   end
-  self.adjacent_maps = adjacent_maps
   
   self:_update_background_load()
   

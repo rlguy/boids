@@ -100,6 +100,11 @@ loader.load_objects = function()
   flock = require("objects/flock")
   flock_interface = require("objects/flock_interface")
   
+  implicit_point = require("objects/implicit_point")
+  implicit_line = require("objects/implicit_line")
+  implicit_rectangle = require("objects/implicit_rectangle")
+  implicit_primitive_set = require("objects/implicit_primitive_set")
+  polygonizer = require("objects/polygonizer")
 end
 
 return loader

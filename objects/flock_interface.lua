@@ -8,7 +8,7 @@ local ADD_MODE = 1
 --##########################################################################--
 local fi = {}
 fi.table = 'fi'
-fi.debug = false
+fi.debug = true
 fi.level = nil
 fi.flock = nil
 
@@ -172,7 +172,7 @@ function fi:_update_selected_boids(dt)
   
   local target = vector2:new(track_x, track_y)
   local cam = self.level:get_camera()
-  cam:set_target(target)
+  --cam:set_target(target, true)
   
   
 end

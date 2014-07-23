@@ -225,7 +225,7 @@ function tile_chunk:update(dt)
   			break
   		end
   	end
-  	self.quad_updates = {}
+  	table.clear(self.quad_updates)
   end
   
   if not self.is_current then

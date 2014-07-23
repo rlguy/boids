@@ -15,6 +15,35 @@ function main_menu_state.keyreleased(key)
 end
 function main_menu_state.mousepressed(x, y, button)
   state.flock:mousepressed(x, y, button)
+  
+  if not surface_theshold then surface_threshold = 0.5 end
+  if not point_radius then point_radius = 200 end
+  local inc = 30
+  local inc2 = 0.05
+  if button == "wu" then
+    if lk.isDown("lctrl") then
+      surface_threshold = surface_threshold + inc2
+    else
+      point_radius = point_radius + inc
+    end
+  end
+  if button == "wd" then
+    if lk.isDown("lctrl") then
+      surface_threshold = surface_threshold - inc2
+    else
+      point_radius = point_radius - inc
+    end
+  end
+  
+  if button == 'l' then
+    local x, y = state.level:get_mouse():get_position():get_vals()
+    local cx, cy = state.level:get_camera():get_viewport()
+    local x, y = x + cx, y + cy
+    
+    state.polygonizer:set_surface_threshold(surface_threshold)
+    local p = state.polygonizer:add_point(x, y, point_radius)
+  end
+  
 end
 function main_menu_state.mousereleased(x, y, button)
   state.flock:mousereleased(x, y, button)
@@ -36,6 +65,7 @@ function main_menu_state.load(level)
                         state.level.level_map.bbox.height - 2 * tpad * TILE_HEIGHT
   local depth = 1200
   state.flock = flock:new(state.level, x, y, width, height, depth)
+  state.polygonizer = polygonizer:new(state.level, x, y, width, height)
   
   state.flock:add_boid(500, 500, 200)
 end
@@ -70,6 +100,7 @@ function main_menu_state.update(dt)
   cam:set_target(target, true)
 
   state.flock:update(dt)
+  state.polygonizer:update(dt)
   state.level:update(dt)
 
 end
@@ -84,6 +115,7 @@ function main_menu_state.draw()
   state.level:draw()
   
   state.level.camera:set()
+  state.polygonizer:draw()
   state.flock:draw()
   state.level.camera:unset()
 end

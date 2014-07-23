@@ -137,6 +137,10 @@ function tile_map:new(level, columns, rows, tile_width, tile_height)
     chunks[j] = {}
   end
   
+  tmap.chunks_in_view = {}
+  tmap.chunks_in_view_by_id = {}
+  self.chunks_in_area = {}
+  self.chunks_in_area_by_id = {}
   tmap.chunks = chunks
   tmap.chunk_width = ch_width
   tmap.chunk_height = ch_height
@@ -606,7 +610,7 @@ function tile_map:get_load_status()
   return loaded, percent, current_idx, num_loaders, time
 end
 
-function tile_map:get_chunks_in_view()
+function tile_map:update_chunks_in_view()
   -- calculate which chunks can be seen by the camera
   local cpos = self.camera:get_pos()
   local cw, ch = self.camera:get_size()
@@ -631,8 +635,10 @@ function tile_map:get_chunks_in_view()
   end
   self.map_isvisible = visible
   
-  local chunks_in_view = {}
-  local chunks_in_view_by_id = {}
+  local chunks_in_view = self.chunks_in_view
+  local chunks_in_view_by_id = self.chunks_in_view_by_id
+  table.clear(chunks_in_view)
+  table.clear_hash(chunks_in_view_by_id)
   if self.map_isvisible then
     for j=minj,maxj do
       for i=mini,maxi do
@@ -646,7 +652,7 @@ function tile_map:get_chunks_in_view()
   return chunks_in_view, chunks_in_view_by_id
 end
 
-function tile_map:get_chunks_in_active_area()
+function tile_map:update_chunks_in_active_area()
   -- calculate which chunks can be seen by the camera
   local area = self.level:get_active_area()
   local topleft = self.top_left
@@ -670,8 +676,12 @@ function tile_map:get_chunks_in_active_area()
   end
   self.map_isvisible = visible
   
-  local chunks_in_area = {}
-  local chunks_in_area_by_id = {}
+  
+  -- clean up memory waste
+  local chunks_in_area = self.chunks_in_area
+  local chunks_in_area_by_id = self.chunks_in_area_by_id
+  table.clear(chunks_in_area)
+  table.clear_hash(chunks_in_area_by_id)
   for j=minj,maxj do
     for i=mini,maxi do
       local chunk = self.chunks[j][i]
@@ -1047,12 +1057,12 @@ function tile_map:update(dt)
     return
   end
   
-  local update_chunks = self:get_chunks_in_active_area()
+  local update_chunks = self:update_chunks_in_active_area()
   for i=1,#update_chunks do
     update_chunks[i]:update(dt)
   end
   
-  local chunks_in_view, chunks_in_view_by_id = self:get_chunks_in_view()
+  local chunks_in_view, chunks_in_view_by_id = self:update_chunks_in_view()
   self.chunks_in_view = chunks_in_view
   self.chunks_in_view_by_id = chunks_in_view_by_id
   

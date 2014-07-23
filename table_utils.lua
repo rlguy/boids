@@ -9,6 +9,12 @@ function table.contains(tb, item)
   return false
 end
 
+function table.pop(tb)
+  local item = tb[#tb]
+  tb[#tb] = nil
+  return item
+end
+
 function table.clear(tb)
   for i=#tb,1,-1 do
     tb[i] = n

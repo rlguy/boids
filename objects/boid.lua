@@ -542,6 +542,21 @@ function bd:draw_shadow()
 end
 
 ------------------------------------------------------------------------------
+function bd:_draw_debug_rule_vector(vector, label)
+  local v = vector
+  local x1, y1 = self.position.x, self.position.y
+  if not (v.x == 0 and v.y == 0 and v.z == 0) then
+    local len = self.sight_radius
+    local x2, y2 = x1 + v.x * len, y1 + v.y * len
+    lg.setColor(0, 0, 0, 255)
+    lg.setLineWidth(3)
+    lg.line(x1, y1, x2, y2)
+    lg.setColor(50, 50, 50, 255)
+    lg.print(label, x2, y2)
+  end
+  
+end
+
 function bd:draw_debug()
   lg.setColor(0, 100, 255, 255)
 
@@ -605,65 +620,12 @@ function bd:draw_debug()
   lg.line(x1, y1, p1x, p1y)
   lg.line(x1, y1, p2x, p2y)
   
-  -- alignment
-  local a = self.alignment_vector
-  if not (a.x == 0 and a.y == 0 and a.z == 0) then
-    local len = self.sight_radius
-    local x2, y2 = x1 + a.x * len, y1 + a.y * len
-    lg.setColor(0, 0, 0, 255)
-    lg.setLineWidth(3)
-    lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
-    lg.print("Align", x2, y2)
-  end
   
-  -- cohesion
-  local c = self.cohesion_vector
-  if not (c.x == 0 and c.y == 0 and c.z == 0) then
-    local len = self.sight_radius
-    local x2, y2 = x1 + c.x * len, y1 + c.y * len
-    lg.setColor(0, 0, 0, 255)
-    lg.setLineWidth(3)
-    lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
-    lg.print("Cohesion", x2, y2)
-  end
-  
-  -- separation
-  local s = self.separation_vector
-  if not (s.x == 0 and s.y == 0 and s.z == 0) then
-    local len = self.sight_radius
-    local x2, y2 = x1 + s.x * len, y1 + s.y * len
-    lg.setColor(0, 0, 0, 255)
-    lg.setLineWidth(3)
-    lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
-    lg.print("Separation", x2, y2)
-  end
-  
-  -- boundary
-  local b = self.boundary_vector
-  if not (b.x == 0 and b.y == 0 and b.z == 0) then
-    local len = self.sight_radius
-    local x2, y2 = x1 + b.x * len, y1 + b.y * len
-    lg.setColor(0, 0, 0, 255)
-    lg.setLineWidth(3)
-    lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
-    lg.print("Boundary", x2, y2)
-  end
-  
-  -- waypoint
-  local w = self.waypoint_vector
-  if not (w.x == 0 and w.y == 0 and w.z == 0) then
-    local len = self.sight_radius
-    local x2, y2 = x1 + w.x * len, y1 + w.y * len
-    lg.setColor(0, 0, 0, 255)
-    lg.setLineWidth(3)
-    lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
-    lg.print("Waypoint", x2, y2)
-  end
+  self:_draw_debug_rule_vector(self.alignment_vector, "Align")
+  self:_draw_debug_rule_vector(self.cohesion_vector, "Cohesion")
+  self:_draw_debug_rule_vector(self.separation_vector, "Separation")
+  self:_draw_debug_rule_vector(self.boundary_vector, "Boundary")
+  self:_draw_debug_rule_vector(self.waypoint_vector, "Waypoint")
   
   -- target
   local t = self.target

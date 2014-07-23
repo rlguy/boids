@@ -15,7 +15,7 @@ fk.active_boids = nil
 
 fk.user_interface = nil
 
-fk.num_initial_boids = 100
+fk.num_initial_boids = 1000
 
 local fk_mt = { __index = fk }
 function fk:new(level, x, y, width, height, depth)
