@@ -63,8 +63,19 @@ level_map.polygonizer = nil
 level_map.is_polygonizer_initialized = false
 level_map.polygonizer_tile_type = nil
 level_map.polygonizer_tile_gradient = nil
-level_map.polygonizer_surface_threshold = 0.6
+level_map.polygonizer_surface_threshold = 0.8
 level_map.polygonizer_edited_tiles = nil
+
+-- food source polygonizer
+level_map.source_polygonizer = nil
+level_map.is_source_polygonizer_initialized = false
+level_map.source_polygonizer_tile_type = nil
+level_map.source_polygonizer_tile_gradient = nil
+level_map.source_polygonizer_surface_threshold = 0.5
+level_map.source_polygonizer_edited_tiles = nil
+
+-- ratio that field vectors will attract from [0-surface_theshold]
+level_map.source_polygonizer_attract_threshold_ratio = 0.4
 
 
 local level_map_mt = { __index = level_map }
@@ -150,6 +161,8 @@ function level_map:add_tile_map(tile_map, tile_offset_x, tile_offset_y)
   self.collider:add_tile_map(tile_map)
 end
 
+--#############################################################################
+-- Polygonizer methods
 function level_map:_init_polygonizer()
   local b = self.bbox
   self.polygonizer = polygonizer:new(self.level, b.x, b.y, b.width, b.height,
@@ -211,7 +224,7 @@ function level_map:set_polygonizer_surface_threshold(thresh)
   self.polygonizer_surface_threshold = thresh
 end
 
-function level_map:_save_tile_data(tile)
+function level_map:_save_tile_data(tile, edited_tiles)
   local data = {}
   data.quad = tile.quad
   data.tile_gradient = tile.gradient
@@ -221,7 +234,7 @@ function level_map:_save_tile_data(tile)
   data.ny = tile.field_data.normal.y
   data.nz = tile.field_data.normal.z
   data.field_intensity = tile.field_data.intensity
-  self.polygonizer_edited_tiles[tile] = data
+  edited_tiles[tile] = data
 end
 
 
@@ -245,7 +258,7 @@ function level_map:_update_polygonizer_field_values()
     local tile = self:get_tile_at_position(pos)
     
     if not edited[tile] then
-      self:_save_tile_data(tile)
+      self:_save_tile_data(tile, edited)
     end
     
     tile:set_field_data(fvalue, n.x, n.y, n.z)
@@ -283,7 +296,7 @@ function level_map:_update_polygonizer_surface_tiles()
     -- solid tiles
     if dir == 0 then
       if not edited[tile] then
-        self:_save_tile_data(tile)
+        self:_save_tile_data(tile, edited)
       end
     
       local quad = tile_gradient:get_quad(fvalue)
@@ -308,8 +321,8 @@ function level_map:_update_polygonizer_surface_tiles()
   end
 end
 
-function level_map:_reset_edited_tiles()
-  for tile,data in pairs(self.polygonizer_edited_tiles) do
+function level_map:_reset_edited_tiles(edited_tiles)
+  for tile,data in pairs(edited_tiles) do
     local quad = data.quad
     local tile_gradient = data.tile_gradient
     local intensity = data.intensity
@@ -323,7 +336,7 @@ function level_map:_reset_edited_tiles()
     tile:remove_diagonal_tile()
   end
   
-  table.clear_hash(self.polygonizer_edited_tiles)
+  table.clear_hash(edited_tiles)
 end
 
 function level_map:update_polygonizer()
@@ -331,11 +344,181 @@ function level_map:update_polygonizer()
     print("ERROR in level_map:update_polygonizer() - polygonizer not set")
     return
   end
-  self:_reset_edited_tiles()
+  self:_reset_edited_tiles(self.polygonizer_edited_tiles)
   self:_update_polygonizer_field_values()
   self:_update_polygonizer_surface_tiles()
 end
 
+--#############################################################################
+-- Food source polygonizer methods
+function level_map:_init_source_polygonizer()
+  local b = self.bbox
+  self.source_polygonizer = polygonizer:new(self.level, b.x, b.y, b.width, b.height,
+                                           self.tile_width, self.tile_height)
+  self.source_polygonizer_edited_tiles = {}
+  self.is_source_polygonizer_initialized = true
+end
+
+function level_map:set_source_polygonizer(tile_type, tile_gradient)
+  if self.is_source_polygonizer_initialized then
+    print("ERROR in level_map:set_source_polygonizer() - polygonizer already set")
+    return
+  end
+  
+  if not tile_type then
+    print("ERROR in level_map:set_source_polygonizer() - missing tile type")
+    return
+  end
+  
+  if not tile_gradient then
+    print("ERROR in level_map:set_source_polygonizer() - missing tile_gradient")
+    return
+  end
+  
+  self:_init_source_polygonizer()
+  self.source_polygonizer_tile_type = tile_type
+  self.source_polygonizer_tile_gradient = tile_gradient
+end
+
+function level_map:add_point_to_source_polygonizer(x, y, radius)
+  if not self.is_source_polygonizer_initialized then
+    print("ERROR in level_map:add_point_to_source_polygonizer() - polygonizer not set")
+    return
+  end
+  
+  if not x or not y then
+    print("ERROR in level_map:add_point_to_source_polygonizer() - no coordinates found")
+    return
+  end
+  
+  local p = self.source_polygonizer:add_point(x, y, radius)
+  return p
+end
+
+function level_map:remove_primitive_from_source_polygonizer(p)
+  self.source_polygonizer:remove_primitive(p)
+end
+
+function level_map:set_source_polygonizer_surface_threshold(thresh)
+  if not thresh then
+    print("ERROR in level_map:set_source_polygonizer_surface_threshold() - missing threshold value")
+    return
+  end
+  
+  local min, max = self.source_polygonizer.min_source_surface_threshold, 
+                   self.source_polygonizer.max_source_surface_threshold
+  if thresh > max then thresh = max end
+  if thresh < min then thresh = min end
+  self.source_polygonizer_surface_threshold = thresh
+end
+
+function level_map:_update_source_polygonizer_field_values()
+  local edited = self.source_polygonizer_edited_tiles
+  local surface_thresh = self.source_polygonizer_surface_threshold
+  local attract_ratio = self.source_polygonizer_attract_threshold_ratio 
+  local attract_thresh = attract_ratio * surface_thresh
+  
+  -- set field values for entire polygonization cover
+  self.source_polygonizer:set_surface_threshold(0)
+  self.source_polygonizer:force_update()
+  local inv_thresh = 1 / self.source_polygonizer_surface_threshold
+  local data = self.source_polygonizer:get_tile_data()
+  local pos = {}
+  for i=1,#data do
+    local td = data[i]
+    pos.x, pos.y = td.x, td.y
+    local n = td.field_vector
+    
+    --[[
+    local fvalue = td.field_value * inv_thresh
+    if fvalue > 1 then fvalue = 1 end
+    --]]
+    
+    local tile = self:get_tile_at_position(pos)
+    if not edited[tile] then
+      self:_save_tile_data(tile, edited)
+    end
+    
+    local fvalue = td.field_value
+    if fvalue < attract_thresh then
+      tile:set_field_data(fvalue, -n.x, -n.y, -n.z)
+    elseif fvalue > surface_thresh then
+      tile:set_field_data(1, n.x, n.y, n.z)
+    else
+      tile:set_field_data(fvalue, -n.y, n.x, n.z)
+    end
+  end
+end
+
+function level_map:_update_source_polygonizer_surface_tiles()
+  local thresh = self.source_polygonizer_surface_threshold
+  self.source_polygonizer:set_surface_threshold(thresh)
+  self.source_polygonizer:force_update()
+  
+  local tile_type = self.source_polygonizer_tile_type
+  local tile_gradient = self.source_polygonizer_tile_gradient
+  local hw, hh = 0.5 * self.tile_width, 0.5 * self.tile_height
+  
+  -- set tiles
+  local data = self.source_polygonizer:get_tile_data()
+  local pos = {}
+  for i=1,#data do
+    local td = data[i]
+    local dir = td.direction
+    local fvalue = td.center_field_value
+    
+    local min, max = 1, 0.5
+    
+    fvalue = 1 - ((fvalue - min) / (max - min))
+    if fvalue < 0 then fvalue = 0 end
+    if fvalue > 1 then fvalue = 1 end
+    
+    pos.x, pos.y = td.x, td.y
+    local tile = self:get_tile_at_position(pos)
+    
+    
+    local edited = self.source_polygonizer_edited_tiles
+    -- solid tiles
+    if dir == 0 then
+      if not edited[tile] then
+        self:_save_tile_data(tile, edited)
+      end
+    
+      local quad = tile_gradient:get_quad(fvalue)
+      tile:_set_quad(quad)
+      tile:set_gradient(tile_gradient)
+      tile:init_intensity(fvalue)
+      tile:set_type(tile_type)
+      
+    -- diagonal tiles
+    else
+      local quad = tile_gradient:get_diagonal_quad(fvalue)
+      tile:set_diagonal_tile(dir, tile_type, quad, tile_gradient)
+      tile.diagonal:init_intensity(fvalue)
+      
+      local diag = tile.diagonal
+      diag:set_chunk(tile.chunk)
+      diag:set_parent(tile.parent)
+      diag:set_spritebatch_position(tile.batch_x, tile.batch_y)
+      tile.chunk.diagonal_tiles[#tile.chunk.diagonal_tiles+1] = diag
+    end
+    
+  end
+end
+
+function level_map:update_source_polygonizer()
+  if not self.is_source_polygonizer_initialized then
+    print("ERROR in level_map:update_source_polygonizer() - polygonizer not set")
+    return
+  end
+  self:_reset_edited_tiles(self.source_polygonizer_edited_tiles)
+  self:_update_source_polygonizer_field_values()
+  self:_update_source_polygonizer_surface_tiles()
+end
+
+
+-- ############################################################################
+-- level_map methods
 function level_map:get_tile_map_at_position(pos)
   local objects = self.collider_objects_storage
   self.tile_map_collider:get_objects_at_position(pos, objects)

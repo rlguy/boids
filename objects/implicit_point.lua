@@ -16,6 +16,7 @@ ip.y = nil
 ip.radius = nil
 ip.weight = 1
 ip.bbox = nil
+ip.min_radius = 60
 
 -- for Geoff field function
 ip.field_a = nil   -- (4/9) * (1/r^6)
@@ -57,6 +58,7 @@ function ip:translate(tx, ty)
 end
 
 function ip:set_radius(r)
+  if r < self.min_radius then r = self.min_radius end
   self.radius = r
   self.bbox.x = self.x - r
   self.bbox.y = self.y - r

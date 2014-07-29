@@ -175,6 +175,8 @@ function main_menu_load.initialize_polygonizer(level)
   level_map:update_polygonizer()
   level_map:_reset_edited_tiles()
   ]]--
+  
+  level_map:set_source_polygonizer(T_WALK, tile_gradient)
 end
 
 function main_menu_load.post_level_load(level)

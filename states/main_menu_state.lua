@@ -19,9 +19,20 @@ function main_menu_state.keypressed(key)
   end
   
   if key == "r" then
+    --[[
     local prims = state.level.level_map.polygonizer.primitives.primitives
     state.level.level_map:remove_primitive_from_polygonizer(prims[#prims])
     state.level.level_map:update_polygonizer()
+    ]]--
+    
+    local prims = state.level.level_map.source_polygonizer.primitives.primitives
+    for i=1,#prims do
+      local p = prims[i]
+      local r = p:get_radius()
+      local factor = 0.9
+      p:set_radius(r * factor)
+    end
+    state.level.level_map:update_source_polygonizer()
   end
 end
 function main_menu_state.keyreleased(key)
@@ -54,8 +65,14 @@ function main_menu_state.mousepressed(x, y, button)
     local cx, cy = state.level:get_camera():get_viewport()
     local x, y = x + cx, y + cy
     local level_map = state.level:get_level_map()
+    
+    --[[
     local p = level_map:add_point_to_polygonizer(x, y, point_radius)
     level_map:update_polygonizer()
+    ]]--
+    
+    local p = level_map:add_point_to_source_polygonizer(x, y, point_radius)
+    level_map:update_source_polygonizer()
   end
   
 end
