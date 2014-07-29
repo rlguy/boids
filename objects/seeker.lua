@@ -56,6 +56,12 @@ function sk:set_position(x, y, z)
   vector3.set(self.position, x, y, z)
 end
 
+function sk:set_direction(dx, dy, dz)
+  vector3.set(self.direction, dx, dy, dz)
+  local speed = vector3.len(self.velocity)
+  vector3.set(self.velocity, dx * speed, dy * speed, dz * speed)
+end
+
 function sk:set_target(x, y, z)
   vector3.set(self.target, x, y, z)
 end

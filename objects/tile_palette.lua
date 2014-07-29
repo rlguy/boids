@@ -131,10 +131,9 @@ function tile_palette:_generate_spritebatch_image()
   
   local imgdata = canvas:getImageData()
   local img = lg.newImage(imgdata)
-  
   -- set spritebatch image
-  for i=1,#grads do
-    grads[i]:set_spritebatch_image(img)
+  for _,g in pairs(grads) do
+    g:set_spritebatch_image(img)
   end
   self.spritebatch_image = img
 end

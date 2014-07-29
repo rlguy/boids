@@ -25,6 +25,8 @@ level_map.height = 0
 level_map.bbox = nil
 level_map.tile_width = nil
 level_map.tile_height = nil
+level_map.inv_tile_width = nil
+level_map.inv_tile_height = nil
 
 -- tile_map query
 level_map.tile_map_collider = nil   -- collider containing tilemap bbox's
@@ -56,6 +58,15 @@ level_map.current_backround_load_map = nil
 -- camera
 level_map.camera_bbox = nil
 
+-- polygonizer
+level_map.polygonizer = nil
+level_map.is_polygonizer_initialized = false
+level_map.polygonizer_tile_type = nil
+level_map.polygonizer_tile_gradient = nil
+level_map.polygonizer_surface_threshold = nil
+level_map.polygonizer_edited_tiles = nil
+
+
 local level_map_mt = { __index = level_map }
 function level_map:new(level)
   local map = setmetatable({}, level_map_mt)
@@ -77,7 +88,6 @@ function level_map:new(level)
   map.collider_objects_storage = {}
   level:set_collider(map.collider)
   
-  
   return map
 end
 
@@ -95,6 +105,8 @@ function level_map:add_tile_map(tile_map, tile_offset_x, tile_offset_y)
   if     #self.tile_maps == 0 then
     self.tile_width = tile_map.tile_width
     self.tile_height = tile_map.tile_height
+    self.inv_tile_width = 1 / self.tile_width
+    self.inv_tile_height = 1 / self.tile_height
   elseif self.tile_width ~= tile_map.tile_width or 
          self.tile_height ~= self.tile_height then
     print("ERROR in level_map:add_tile_map() - tile dimensions must be same"..
@@ -138,6 +150,187 @@ function level_map:add_tile_map(tile_map, tile_offset_x, tile_offset_y)
   self.collider:add_tile_map(tile_map)
 end
 
+function level_map:_init_polygonizer()
+  local b = self.bbox
+  self.polygonizer = polygonizer:new(self.level, b.x, b.y, b.width, b.height,
+                                     self.tile_width, self.tile_height)
+  self.polygonizer_edited_tiles = {}
+  self.is_polygonizer_initialized = true
+end
+
+function level_map:set_polygonizer(tile_type, tile_gradient)
+  if self.is_polygonizer_initialized then
+    print("ERROR in level_map:set_polygonizer() - polygonizer already set")
+    return
+  end
+  
+  if not tile_type then
+    print("ERROR in level_map:set_polygonizer() - missing tile type")
+    return
+  end
+  
+  if not tile_gradient then
+    print("ERROR in level_map:set_polygonizer() - missing tile_gradient")
+    return
+  end
+  
+  self:_init_polygonizer()
+  self.polygonizer_tile_type = tile_type
+  self.polygonizer_tile_gradient = tile_gradient
+end
+
+function level_map:add_point_to_polygonizer(x, y, radius)
+  if not self.is_polygonizer_initialized then
+    print("ERROR in level_map:add_point_to_polygonizer() - polygonizer not set")
+    return
+  end
+  
+  if not x or not y then
+    print("ERROR in level_map:add_point_to_polygonizer() - no coordinates found")
+    return
+  end
+  
+  self.polygonizer:add_point(x, y, radius)
+end
+
+function level_map:set_polygonizer_surface_threshold(thresh)
+  if not thresh then
+    print("ERROR in level_map:et_polygonizer_surface_threshold() - missing threshold value")
+    return
+  end
+  
+  local min, max = self.polygonizer.min_surface_threshold, 
+                   self.polygonizer.max_surface_threshold
+  if thresh > max then thresh = max end
+  if thresh < min then thresh = min end
+  self.polygonizer_surface_threshold = thresh
+end
+
+function level_map:_save_tile_data(tile)
+  local data = {}
+  data.quad = tile.quad
+  data.tile_gradient = tile.gradient
+  data.intensity = tile.intensity
+  data.tile_type = tile.type
+  data.nx = tile.field_data.normal.x
+  data.ny = tile.field_data.normal.y
+  data.nz = tile.field_data.normal.z
+  data.field_intensity = tile.field_data.intensity
+  self.polygonizer_edited_tiles[tile] = data
+end
+
+
+function level_map:_update_polygonizer_field_values()
+  local edited = self.polygonizer_edited_tiles
+
+  -- set field values for entire polygonization cover
+  -- field values are set as 1 at the surface threshold and 0 at the boundary
+  -- of the implicit primitive
+  self.polygonizer:set_surface_threshold(0)
+  self.polygonizer:force_update()
+  local inv_thresh = 1 / self.polygonizer_surface_threshold
+  local data = self.polygonizer:get_tile_data()
+  local pos = {}
+  for i=1,#data do
+    local td = data[i]
+    pos.x, pos.y = td.x, td.y
+    local n = td.field_vector
+    local fvalue = td.field_value * inv_thresh
+    if fvalue > 1 then fvalue = 1 end
+    local tile = self:get_tile_at_position(pos)
+    
+    if not edited[tile] then
+      self:_save_tile_data(tile)
+    end
+    
+    tile:set_field_data(fvalue, n.x, n.y, n.z)
+  end
+end
+
+function level_map:_update_polygonizer_surface_tiles()
+  local thresh = self.polygonizer_surface_threshold
+  self.polygonizer:set_surface_threshold(thresh)
+  self.polygonizer:force_update()
+  
+  local tile_type = self.polygonizer_tile_type
+  local tile_gradient = self.polygonizer_tile_gradient
+  local hw, hh = 0.5 * self.tile_width, 0.5 * self.tile_height
+  
+  -- set tiles
+  local data = self.polygonizer:get_tile_data()
+  local pos = {}
+  for i=1,#data do
+    local td = data[i]
+    local dir = td.direction
+    local fvalue = td.center_field_value
+    
+    local min, max = 1, 0.5
+    
+    fvalue = 1 - ((fvalue - min) / (max - min))
+    if fvalue < 0 then fvalue = 0 end
+    if fvalue > 1 then fvalue = 1 end
+    
+    pos.x, pos.y = td.x, td.y
+    local tile = self:get_tile_at_position(pos)
+    
+    
+    local edited = self.polygonizer_edited_tiles
+    -- solid tiles
+    if dir == 0 then
+      if not edited[tile] then
+        self:_save_tile_data(tile)
+      end
+    
+      local quad = tile_gradient:get_quad(fvalue)
+      tile:_set_quad(quad)
+      tile:set_gradient(tile_gradient)
+      tile:init_intensity(fvalue)
+      tile:set_type(tile_type)
+      
+    -- diagonal tiles
+    else
+      local quad = tile_gradient:get_diagonal_quad(fvalue)
+      tile:set_diagonal_tile(dir, tile_type, quad, tile_gradient)
+      tile.diagonal:init_intensity(fvalue)
+      
+      local diag = tile.diagonal
+      diag:set_chunk(tile.chunk)
+      diag:set_parent(tile.parent)
+      diag:set_spritebatch_position(tile.batch_x, tile.batch_y)
+      tile.chunk.diagonal_tiles[#tile.chunk.diagonal_tiles+1] = diag
+    end
+    
+  end
+end
+
+function level_map:_reset_edited_tiles()
+  for tile,data in pairs(self.polygonizer_edited_tiles) do
+    local quad = data.quad
+    local tile_gradient = data.tile_gradient
+    local intensity = data.intensity
+    local tile_type = data.tile_type
+    
+    tile:_set_quad(quad)
+    tile:set_gradient(tile_gradient)
+    tile:init_intensity(intensity)
+    tile:set_type(tile_type)
+    tile:set_field_data(data.field_intensity, data.nx, data.ny, data.nz)
+    tile:remove_diagonal_tile()
+  end
+  
+  table.clear_hash(self.polygonizer_edited_tiles)
+end
+
+function level_map:update_polygonizer()
+  if not self.is_polygonizer_initialized then
+    print("ERROR in level_map:update_polygonizer() - polygonizer not set")
+    return
+  end
+  self:_reset_edited_tiles()
+  self:_update_polygonizer_field_values()
+  self:_update_polygonizer_surface_tiles()
+end
+
 function level_map:get_tile_map_at_position(pos)
   local objects = self.collider_objects_storage
   self.tile_map_collider:get_objects_at_position(pos, objects)
@@ -164,6 +357,58 @@ function level_map:get_tiles_at_bbox(bbox, storage)
   for i=1,#tmaps do
     tmaps[i]:get_tiles_at_bbox(bbox, storage)
   end
+end
+
+-- bilinearly interpolate field values
+function level_map:get_field_vector_at_position(pos)
+  local t1 = self:get_tile_at_position(pos) -- upleft
+  if not t1 then
+    return 0, 0, 0
+  end
+  
+  local t2 = t1.neighbours[RIGHT]           -- upright
+  local t3 = t1.neighbours[DOWN]            -- downleft
+  local t4 = t1.neighbours[DOWNRIGHT]       -- downright
+  
+  if not t1 or not t2 or not t3 or not t4 then
+    return 0, 0, 0
+  end
+  
+  local x, y = pos.x, pos.y
+  local d1, d2, d3, d4 = t1:get_field_data(), t2:get_field_data(), 
+                         t3:get_field_data(), t4:get_field_data()
+  local n1, n2, n3, n4 = d1.normal, d2.normal, 
+                         d3.normal, d4.normal
+  local i1, i2, i3, i4 = d1.intensity, d2.intensity, 
+                         d3.intensity, d4.intensity
+                         
+  if i1 == 0 and i2 == 0 and i3 == 0 and i4 == 0 then
+    return 0, 0, 0
+  end
+                         
+  local invw, invh = self.inv_tile_width, self.inv_tile_height
+  local progx, progy = (x - t1.x) * invw, (y - t1.y) * invh
+  
+  -- interpolate intensity
+  local r1 = i1 + progx * (i2 - i1)
+  local r2 = i3 + progx * (i4 - i3)
+  local intensity = r1 + progy * (r2 - r1)
+  
+  -- interpolate direction
+  local r1 = n1.x + progx * (n2.x - n1.x)
+  local r2 = n3.x + progx * (n4.x - n3.x)
+  local nx = r1 + progy * (r2 - r1)
+  
+  local r1 = n1.y + progx * (n2.y - n1.y)
+  local r2 = n3.y + progx * (n4.y - n3.y)
+  local ny = r1 + progy * (r2 - r1)
+  
+  local len = math.sqrt(nx*nx + ny*ny)
+  if len > 0 then
+    local inv = 1 / len
+    nx, ny = nx * inv, ny * inv
+  end
+  return nx, ny, intensity
 end
 
 function level_map:_stitch_tile_maps(A_map, A_side, B_map, B_side)
@@ -499,6 +744,10 @@ function level_map:draw()
   for _,tmap in ipairs(self.loaded_maps) do
     tmap:draw()
   end
+  
+  self.camera:set()
+  self.polygonizer:draw()
+  self.camera:unset()
 
   if self.db then
     self.camera:set()

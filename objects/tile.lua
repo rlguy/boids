@@ -68,10 +68,43 @@ tile.dead_lights = nil
 tile.light_id_value = 0
 tile.light_intensity = 0
 
+-- polygonizer field data
+tile.field_data = nil
+
 local tile_mt = { __index = tile }
 function tile:new()
-  return setmetatable({}, tile_mt)
+  local tile = setmetatable({}, tile_mt)
+  tile:_init_field_data()
+  return tile
 end
+
+function tile:_init_field_data()
+  self.field_data = {}
+  self.field_data.normal = {x = 0, y = 0, z = 0}
+  self.field_data.intensity = 0
+end
+
+function tile:get_field_intensity()
+  return self.field_data.intensity
+end
+
+function tile:get_field_direction()
+  return self.field_data.normal.x, self.field_data.normal.y, self.field_data.normal.z
+end
+
+function tile:get_field_data()
+  return self.field_data
+end
+
+function tile:set_field_data(intensity, nx, ny, nz)
+  nz = nz or 0
+  self.field_data.intensity = intensity
+  self.field_data.normal.x = nx
+  self.field_data.normal.y = ny
+  self.field_data.normal.z = nz
+end
+
+
 
 -- tile type is an integer, types found in tile_types.lua
 function tile:set_type(tile_type)
@@ -106,6 +139,19 @@ function tile:set_diagonal_tile(direction, tile_type, quad, gradient)
 	diag_tile:set_type(tile_type)
 	
 	self.diagonal = diag_tile
+end
+
+function tile:remove_diagonal_tile()
+  local diag = self.diagonal
+  self.diagonal = nil
+  
+  local diag_tiles = self.chunk.diagonal_tiles
+  for i=1,#diag_tiles do
+    if diag_tiles[i] == diag then
+      table.remove(diag_tiles, i)
+      break
+    end
+  end
 end
 
 function tile:init_intensity(intensity)
@@ -165,8 +211,14 @@ function tile:set_chunk(chunk) self.chunk = chunk end
 
 function tile:_set_quad(quad)
 	self.quad = quad
+	
+	-- update chunk for solid tile case
 	if self.chunk then
     self.chunk:update_quad(self)
+    
+  -- diagonal tile case
+  elseif self.parent_tile and self.parent_tile.chunk then
+    self.parent_tile.chunk:update_quad(self.parent_tile)
   end
 end
 

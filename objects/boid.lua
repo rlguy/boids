@@ -23,13 +23,14 @@ bd.min_roll_speed = 0
 bd.max_roll_speed = 4
 bd.min_scale = 0.5
 bd.max_scale = 1.3
-bd.field_of_view = 0.9 * math.pi
+bd.field_of_view = 1 * math.pi
 bd.sight_radius = 200
 bd.separation_radius = 0.2 * bd.sight_radius
-bd.boundary_zpad = 100
+bd.boundary_zpad = 200
 bd.boundary_ypad = 200
 bd.boundary_xpad = 200
 bd.boundary_vector_mix_ratio = 0.25           -- mixes normal to reflected projection
+bd.obstacle_vector_mix_ratio = 0.5
 bd.max_boundary_reflect_angle = math.pi / 3  -- boundary rule vector is reflected
                                              -- if angle between boundary normal
                                              -- and boid direction is less than this
@@ -49,11 +50,13 @@ bd.cohesion_vector = nil
 bd.separation_vector = nil
 bd.boundary_vector = nil
 bd.waypoint_vector = nil
+bd.obstacle_vector = nil
 
 bd.seeker = nil
 bd.graphic = nil
 
 bd.is_initialized = false
+bd.temp_vector = nil
 
 local bd_mt = { __index = bd }
 function bd:new(level, parent_flock, x, y, z, dirx, diry, dirz)
@@ -63,6 +66,7 @@ function bd:new(level, parent_flock, x, y, z, dirx, diry, dirz)
   bd.position = {}
   bd.direction = {}
   bd.target = {x = 0, y = 0, z = 0}
+  bd.temp_vector = {}
   bd.neighbours = {}
   bd.neighbours_in_view = {}
   bd:_init_map_point(x, y, parent_flock)
@@ -99,14 +103,16 @@ function bd:_init_rule_vectors()
   self.separation_vector = {}
   self.boundary_vector = {}
   self.waypoint_vector = {}
+  self.obstacle_vector = {}
   self:_clear_rule_vectors()
   
   local weights = {}
   weights[self.alignment_vector]  = 0.5
   weights[self.cohesion_vector]   = 0.2
-  weights[self.separation_vector] = 4
+  weights[self.separation_vector] = 3
   weights[self.boundary_vector]   = 3
-  weights[self.waypoint_vector]   = 1
+  weights[self.waypoint_vector]   = 0.5
+  weights[self.obstacle_vector]   = 4
   self.rule_weights = weights
 end
 
@@ -116,6 +122,7 @@ function bd:_clear_rule_vectors()
   vector3.set(self.separation_vector, 0, 0, 0)
   vector3.set(self.boundary_vector, 0, 0, 0)
   vector3.set(self.waypoint_vector, 0, 0, 0)
+  vector3.set(self.obstacle_vector, 0, 0, 0)
 end
 
 function bd:_init_boid_seeker()
@@ -173,6 +180,15 @@ function bd:init(parent_flock, x, y, z, dirx, diry, dirz)
   self.is_initialized = true
 end
 
+function bd:set_position(x, y, z)
+  vector3.set(self.position, x, y, z)
+  self.seeker:set_position(x, y, z)
+  
+  local pos = self.temp_vector
+  vector3.set(pos, x, y, nil)
+  self.map_point:update_position(pos)
+end
+
 function bd:get_position()
   return self.position.x, self.position.y, self.position.z
 end
@@ -183,6 +199,7 @@ end
 
 function bd:set_direction(dx, dy, dz)
   vector3.set(self.direction, dx, dy, dz)
+  self.seeker:set_direction(dx, dy, dz)
 end
 
 function bd:set_waypoint(x, y, z, inner_radius, outer_radius)
@@ -212,7 +229,23 @@ function bd:_update_seeker(dt)
 end
 
 function bd:_handle_tile_collision(normal, point, offset, tile)
-  --print("collision", math.random())
+  local dir = self.direction
+  
+  local dot = dir.x * normal.x + dir.y * normal.y + dir.z * 0
+  local rx = -2 * dot * normal.x + dir.x
+  local ry = -2 * dot * normal.y + dir.y
+  local rz = -2 * dot * 0 + dir.z
+  
+  local len = math.sqrt(rx*rx + ry*ry + rz*rz)
+  if len == 0 then return end
+  local inv = 1 / len
+  rx, ry, rz = rx * inv, ry * inv, rz * inv
+  
+  local jog = 3
+  local x, y, z = point.x + jog * normal.x, point.y + jog * normal.y, self.position.z
+  self:set_position(x, y, z)
+  
+  self:set_direction(rx, ry, rz)
 end
 
 function bd:_update_map_point(dt)
@@ -490,6 +523,52 @@ function bd:_update_waypoint_rule()
   end
 end
 
+function bd:_update_obstacle_rule()
+  local vect = self.obstacle_vector
+  local level_map = self.level:get_level_map()
+  local nx, ny, val = level_map:get_field_vector_at_position(self.position)
+  vect.x, vect.y, vect.z = nx, ny, 0
+  
+  if vect.x == 0 and vect.y == 0 then 
+    return
+  end
+  
+  -- reflect direction of using normal vect
+  local dir = self.direction
+  local dot = dir.x * vect.x + dir.y * vect.y + dir.z * vect.z
+  local angle = math.acos(-dot)
+  local eps = 0.0001
+  if angle > eps and angle < self.max_boundary_reflect_angle then
+    local dot = dir.x * vect.x + dir.y * vect.y + dir.z * vect.z
+    local rx = -2 * dot * vect.x + dir.x
+    local ry = -2 * dot * vect.y + dir.y
+    local rz = -2 * dot * vect.z + dir.z
+    
+    -- project reflected vector onto plane normal to bvect
+    local dot = rx * vect.x + ry * vect.y + rz * vect.z
+    local dx = rx - dot * vect.x
+    local dy = ry - dot * vect.y 
+    local dz = rz - dot * vect.z
+    
+    local len = math.sqrt(dx*dx + dy*dy + dz*dz)
+    if len > 0 then
+      local invlen = 1 / len
+      dx, dy, dz = dx*invlen, dy*invlen, dz*invlen
+      
+      -- mix projected reflection vector with normal vector (bvect)
+      local r = self.obstacle_vector_mix_ratio
+      dx = r * vect.x + (1-r) * dx
+      dy = r * vect.y + (1-r) * dy
+      dz = r * vect.z + (1-r) * dz
+      len = math.sqrt(dx*dx + dy*dy + dz*dz)
+      if len > 0 then
+        local factor = (1 / len) * val
+        vect.x, vect.y, vect.z = factor * dx, factor * dy, factor * dz
+      end
+    end
+  end
+end
+
 function bd:_update_rules(dt)
   self:_clear_rule_vectors()
   self:_update_alignment_rule(dt)
@@ -497,6 +576,7 @@ function bd:_update_rules(dt)
   self:_update_separation_rule(dt)
   self:_update_boundary_rule(dt)
   self:_update_waypoint_rule(dt)
+  self:_update_obstacle_rule(dt)
 end
 
 function bd:_update_target(dt)
@@ -626,6 +706,7 @@ function bd:draw_debug()
   self:_draw_debug_rule_vector(self.separation_vector, "Separation")
   self:_draw_debug_rule_vector(self.boundary_vector, "Boundary")
   self:_draw_debug_rule_vector(self.waypoint_vector, "Waypoint")
+  self:_draw_debug_rule_vector(self.obstacle_vector, "Obstacle")
   
   -- target
   local t = self.target

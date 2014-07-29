@@ -25,7 +25,7 @@ local UPLEFT_TILE = 8
 
 local pgr = {}
 pgr.table = 'pgr'
-pgr.debug = true
+pgr.debug = false
 pgr.level = nil
 pgr.primitives = nil
 pgr.bbox = nil
@@ -38,7 +38,10 @@ pgr.cols = nil
 pgr.rows = nil
 
 pgr.default_radius = 200
+pgr.min_radius = 120
 pgr.surface_threshold = 0.5
+pgr.min_surface_threshold = 0
+pgr.max_surface_threshold = 0.9
 
 pgr.cell_inside_case = 16
 pgr.cell_outside_case = 1
@@ -209,6 +212,15 @@ do
                                            tw, th = self.tile_width, self.tile_height
                                            ox, oy = 0.5 * tw, 0.5 * th
                                          end
+                                         
+  local init_field_data = function(self, tile)
+                            local nx, ny, val = self.primitives:get_field_normal(tile.x, tile.y)
+                            tile.field_vector = {x = nx, y = ny, z = 0}
+                            tile.field_value = val
+                            local cx, cy = tile.x + 0.5 * self.tile_width, 
+                                           tile.y + 0.5 * self.tile_height
+                            _, _, tile.center_field_value = self.primitives:get_field_normal(cx, cy)
+                          end
   
   cases[1] = function(x, y, data)
                -- blank case
@@ -218,6 +230,7 @@ do
                tile.x = x
                tile.y = y + th
                tile.direction = upright
+               init_field_data(self, tile)
                
                data[#data + 1] = tile
              end
@@ -226,6 +239,7 @@ do
                tile.x = x + tw
                tile.y = y + th
                tile.direction = upleft
+               init_field_data(self, tile)
                
                data[#data + 1] = tile
              end
@@ -234,11 +248,13 @@ do
                tile1.x = x
                tile1.y = y + th
                tile1.direction = solid
+               init_field_data(self, tile1)
                
                local tile2 = {}
                tile2.x = x + tw
                tile2.y = y + th
                tile2.direction = solid
+               init_field_data(self, tile2)
                
                data[#data + 1] = tile1
                data[#data + 1] = tile2
@@ -248,6 +264,7 @@ do
                tile.x = x + tw
                tile.y = y
                tile.direction = downleft
+               init_field_data(self, tile)
                
                data[#data + 1] = tile
              end
@@ -256,21 +273,25 @@ do
                tile1.x = x
                tile1.y = y
                tile1.direction = upleft
+               init_field_data(self, tile1)
                
                local tile2 = {}
                tile2.x = x + tw
                tile2.y = y
                tile2.direction = solid
+               init_field_data(self, tile2)
                
                local tile3 = {}
                tile3.x = x
                tile3.y = y + th
                tile3.direction = solid
+               init_field_data(self, tile3)
                
                local tile4 = {}
                tile4.x = x + tw
                tile4.y = y + th
                tile4.direction = downright
+               init_field_data(self, tile4)
                
                data[#data + 1] = tile1
                data[#data + 1] = tile2
@@ -282,11 +303,13 @@ do
                tile1.x = x + tw
                tile1.y = y
                tile1.direction = solid
+               init_field_data(self, tile1)
                
                local tile2 = {}
                tile2.x = x + tw
                tile2.y = y + th
                tile2.direction = solid
+               init_field_data(self, tile2)
                
                data[#data + 1] = tile1
                data[#data + 1] = tile2
@@ -296,21 +319,25 @@ do
                tile1.x = x
                tile1.y = y
                tile1.direction = upleft
+               init_field_data(self, tile1)
                
                local tile2 = {}
                tile2.x = x + tw
                tile2.y = y
                tile2.direction = solid
+               init_field_data(self, tile2)
                
                local tile3 = {}
                tile3.x = x
                tile3.y = y + th
                tile3.direction = solid
+               init_field_data(self, tile3)
                
                local tile4 = {}
                tile4.x = x + tw
                tile4.y = y + th
                tile4.direction = solid
+               init_field_data(self, tile4)
                
                data[#data + 1] = tile1
                data[#data + 1] = tile2
@@ -322,166 +349,191 @@ do
                tile.x = x
                tile.y = y
                tile.direction = downright
+               init_field_data(self, tile)
                
                data[#data + 1] = tile
              end
   cases[10] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x
-               tile2.y = y + th
-               tile2.direction = solid
+                local tile2 = {}
+                tile2.x = x
+                tile2.y = y + th
+                tile2.direction = solid
+                init_field_data(self, tile2)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
               end
   cases[11] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = upright
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = upright
+                init_field_data(self, tile2)
                
-               local tile3 = {}
-               tile3.x = x
-               tile3.y = y + th
-               tile3.direction = solid
+                local tile3 = {}
+                tile3.x = x
+                tile3.y = y + th
+                tile3.direction = solid
+                init_field_data(self, tile3)
                
-               local tile4 = {}
-               tile4.x = x + tw
-               tile4.y = y + th
-               tile4.direction = downleft
+                local tile4 = {}
+                tile4.x = x + tw
+                tile4.y = y + th
+                tile4.direction = downleft
+                init_field_data(self, tile4)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
-               data[#data + 1] = tile3
-               data[#data + 1] = tile4
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
+                data[#data + 1] = tile3
+                data[#data + 1] = tile4
               end
   cases[12] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = upright
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = upright
+                init_field_data(self, tile2)
                
-               local tile3 = {}
-               tile3.x = x
-               tile3.y = y + th
-               tile3.direction = solid
+                local tile3 = {}
+                tile3.x = x
+                tile3.y = y + th
+                tile3.direction = solid
+                init_field_data(self, tile3)
                
-               local tile4 = {}
-               tile4.x = x + tw
-               tile4.y = y + th
-               tile4.direction = solid
+                local tile4 = {}
+                tile4.x = x + tw
+                tile4.y = y + th
+                tile4.direction = solid
+                init_field_data(self, tile4)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
-               data[#data + 1] = tile3
-               data[#data + 1] = tile4
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
+                data[#data + 1] = tile3
+                data[#data + 1] = tile4
               end
   cases[13] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = solid
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = solid
+                init_field_data(self, tile2)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
               end
   cases[14] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = solid
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = solid
+                init_field_data(self, tile2)
                
-               local tile3 = {}
-               tile3.x = x
-               tile3.y = y + th
-               tile3.direction = solid
+                local tile3 = {}
+                tile3.x = x
+                tile3.y = y + th
+                tile3.direction = solid
+                init_field_data(self, tile3)
                
-               local tile4 = {}
-               tile4.x = x + tw
-               tile4.y = y + th
-               tile4.direction = downright
+                local tile4 = {}
+                tile4.x = x + tw
+                tile4.y = y + th
+                tile4.direction = downright
+                init_field_data(self, tile4)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
-               data[#data + 1] = tile3
-               data[#data + 1] = tile4
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
+                data[#data + 1] = tile3
+                data[#data + 1] = tile4
               end
   cases[15] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = solid
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = solid
+                init_field_data(self, tile2)
                
-               local tile3 = {}
-               tile3.x = x
-               tile3.y = y + th
-               tile3.direction = downleft
+                local tile3 = {}
+                tile3.x = x
+                tile3.y = y + th
+                tile3.direction = downleft
+                init_field_data(self, tile3)
                
-               local tile4 = {}
-               tile4.x = x + tw
-               tile4.y = y + th
-               tile4.direction = solid
+                local tile4 = {}
+                tile4.x = x + tw
+                tile4.y = y + th
+                tile4.direction = solid
+                init_field_data(self, tile4)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
-               data[#data + 1] = tile3
-               data[#data + 1] = tile4
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
+                data[#data + 1] = tile3
+                data[#data + 1] = tile4
               end
   cases[16] = function(self, x, y, data)
                 local tile1 = {}
-               tile1.x = x
-               tile1.y = y
-               tile1.direction = solid
+                tile1.x = x
+                tile1.y = y
+                tile1.direction = solid
+                init_field_data(self, tile1)
                
-               local tile2 = {}
-               tile2.x = x + tw
-               tile2.y = y
-               tile2.direction = solid
+                local tile2 = {}
+                tile2.x = x + tw
+                tile2.y = y
+                tile2.direction = solid
+                init_field_data(self, tile2)
                
-               local tile3 = {}
-               tile3.x = x
-               tile3.y = y + th
-               tile3.direction = solid
+                local tile3 = {}
+                tile3.x = x
+                tile3.y = y + th
+                tile3.direction = solid
+                init_field_data(self, tile3)
                
-               local tile4 = {}
-               tile4.x = x + tw
-               tile4.y = y + th
-               tile4.direction = solid
+                local tile4 = {}
+                tile4.x = x + tw
+                tile4.y = y + th
+                tile4.direction = solid
+                init_field_data(self, tile4)
                
-               data[#data + 1] = tile1
-               data[#data + 1] = tile2
-               data[#data + 1] = tile3
-               data[#data + 1] = tile4
+                data[#data + 1] = tile1
+                data[#data + 1] = tile2
+                data[#data + 1] = tile3
+                data[#data + 1] = tile4
               end
 end
           
@@ -522,6 +574,9 @@ function pgr:new(level, x, y, width, height, tile_width, tile_height)
 end
 
 function pgr:set_surface_threshold(thresh)
+  local min, max = self.min_surface_threshold, self.max_surface_threshold
+  if thresh > max then thresh = max end
+  if thresh < min then thresh = min end
   self.surface_threshold = thresh
 end
 
@@ -575,6 +630,7 @@ function pgr:_init_textures()
             vert_img:getWidth() + triangle_img:getWidth() + tile_img:getWidth()
   local h = cell_img:getHeight()
   local canvas = lg.newCanvas(w, h)
+  lg.setColor(255, 255, 255, 255)
   lg.setCanvas(canvas)
   local x, y = 0, 0
   lg.draw(cell_img, x, y)
@@ -622,7 +678,14 @@ end
 
 function pgr:add_point(x, y, radius)
   radius = radius or self.default_radius
+  
+  if radius < self.min_radius then radius = self.min_radius end
+  
   local p = implicit_point:new(x, y, radius)
+  local b = p:get_bbox()
+  if not self.bbox:contains(b) then
+    return
+  end
   self.primitives:add_primitive(p)
   
   self.is_current = false
@@ -902,7 +965,8 @@ function pgr:_draw_to_spritebatch()
     ratio = math.min(1, ratio)
     ratio = math.max(0, ratio)
     
-    local c = grad[math.floor(1 + ratio * (glen - 1))]
+    local cidx = math.floor(1 + ratio * (glen - 1))
+    local c = grad[cidx]
     batch:setColor(c[1], c[2], c[3], c[4])
     
     case_funcs[cell.case](self, cell.x, cell.y)
@@ -929,8 +993,13 @@ function pgr:_generate_tile_data()
   end
 end
 
-function pgr:update(dt)
-  self.primitives:update(dt)
+function pgr:force_update()
+  self.is_current = false
+  self:update()
+end
+
+function pgr:update()
+  self.primitives:update()
 
   if self.is_current then return end
   
@@ -945,6 +1014,10 @@ end
 function pgr:_draw_debug()
   lg.setColor(0, 0, 255, 255)
   self.bbox:draw()
+  
+  -- polygonzied surface
+  lg.setColor(255, 255, 255, 255)
+  lg.draw(self.spritebatch, 0, 0)
   
   -- cell grid
   local cw, ch = self.cell_width, self.cell_height
@@ -1028,12 +1101,6 @@ end
 
 ------------------------------------------------------------------------------
 function pgr:draw()
-  lg.setColor(0, 0, 0, 255)
-  self.bbox:draw()
-
-  lg.setColor(255, 255, 255, 255)
-  lg.draw(self.spritebatch, 0, 0)
-
   if not self.debug then return end
   
   self:_draw_debug()

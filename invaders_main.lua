@@ -40,8 +40,8 @@ function love.load(args)
   SCR_HEIGHT = args[2]
   FULLSCREEN = args[3]
   MOUSE_INPUT = nil
-  TILE_WIDTH = 32
-  TILE_HEIGHT = 32
+  TILE_WIDTH = 42
+  TILE_HEIGHT = 42
   CELL_WIDTH = 64                       -- collider cell width
   CELL_HEIGHT = 64
   MAX_IMAGE_WIDTH = 2048                  -- in pixels
@@ -81,12 +81,12 @@ function love.update(dt)
     end
   
     if love.keyboard.isDown('z') then dt = dt / 16 end
+    if love.keyboard.isDown('x') then dt = dt * 3 end
   end
 
   MASTER_TIMER:update(dt)
   MOUSE_INPUT:update(dt)
   INVADERS:update(dt)
-  print(collectgarbage("count"))
 end
 
 function love.draw()

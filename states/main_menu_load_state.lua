@@ -78,15 +78,18 @@ function main_menu_load.construct_level_map(level)
   local dir = "gradients/named/"
   local blend = 0.03
   local g_background = tile_gradient:new(require( dir.."allwhite"), ncolors)
-  local g_wall1 = tile_gradient:new(require( dir.."blue"), ncolors)
+  local g_wall1 = tile_gradient:new(require( dir.."allwhite"), ncolors)
+  local g_black = tile_gradient:new(require( dir.."greenyellow"), ncolors)
                                          
   g_wall1:add_diagonals()
   g_wall1:add_border(C_BLACK, blend)
+  g_black:add_diagonals()
   g_background:add_border(C_BLACK, blend)
                                          
   local palette = tile_palette:new()
-  palette:add_gradient(g_background, 1)
-  palette:add_gradient(g_wall1, 2)
+  palette:add_gradient(g_background, "allwhite")
+  palette:add_gradient(g_wall1, "blue")
+  palette:add_gradient(g_black, "black")
   palette:load()
   state.level:set_tile_palette(palette)
   
@@ -114,16 +117,18 @@ function main_menu_load.construct_level_map(level)
   	  local x, y = layer_data.x, layer_data.y
   	  local w, h = layer_data.width, layer_data.height
   	  local layer = tile_layer:new(imgdata_layers[back], x, y, w, h, 
-  	                               palette:get_gradient(1), 0, T_WALK)
+  	                               palette:get_gradient("allwhite"), 0, T_WALK)
       tmap:add_tile_layer(layer)
   	end
   	if slice_data[wall] then
+  	  --[[
   	  local layer_data = slice_data[wall]
   	  local x, y = layer_data.x, layer_data.y
   	  local w, h = layer_data.width, layer_data.height
   	  local layer = tile_layer:new(imgdata_layers[wall], x, y, w, h,
-  	                               palette:get_gradient(2), 0, T_WALL)
+  	                               palette:get_gradient("blue"), 0, T_WALL)
       tmap:add_tile_layer(layer)
+      ]]--
   	end
   	
   	level_map:add_tile_map(tmap, offx, offy)
@@ -151,6 +156,19 @@ function main_menu_load.initialize_mouse_input(level)
 end
 function main_menu_load.initialize_audio_objects(level)
 end
+function main_menu_load.initialize_polygonizer(level)
+  local level_map = level:get_level_map()
+  local palette = level:get_tile_palette()
+  local tile_gradient = palette:get_gradient("black")
+  local tile_type = T_WALL
+  level_map:set_polygonizer(tile_type, tile_gradient)
+  
+  level_map:add_point_to_polygonizer(1000, 1000, 600)
+  level_map:add_point_to_polygonizer(1300, 1000, 300)
+  level_map:set_polygonizer_surface_threshold(0.5)
+  level_map:update_polygonizer()
+  level_map:_reset_edited_tiles()
+end
 
 function main_menu_load.post_level_load(level)
   state.initialize_mouse_input(level)
@@ -158,6 +176,8 @@ function main_menu_load.post_level_load(level)
   state.initialize_shard_sets(level)
   state.initialize_tile_explosions(level)
   state.initialize_audio_objects(level)
+  state.initialize_polygonizer(level)
+  
 end
 
 

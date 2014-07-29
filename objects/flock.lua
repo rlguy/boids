@@ -6,7 +6,7 @@
 --##########################################################################--
 local fk = {}
 fk.table = 'fk'
-fk.debug = true
+fk.debug = false
 fk.level = nil
 fk.bbox = nil
 fk.temp_collision_bbox = nil

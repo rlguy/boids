@@ -8,7 +8,7 @@ local ADD_MODE = 1
 --##########################################################################--
 local fi = {}
 fi.table = 'fi'
-fi.debug = true
+fi.debug = false
 fi.level = nil
 fi.flock = nil
 

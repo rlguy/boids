@@ -1006,6 +1006,10 @@ function map_point:_get_tile(p)
 	return tmap:get_tile_at_position(p)
 end
 
+function map_point:get_tile()
+  return self.tile
+end
+
 ------------------------------------------------------------------------------
 function map_point:_get_tile_offset(p)
   local offset = self.temp_tile_offset

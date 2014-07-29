@@ -35,13 +35,15 @@ function main_menu_state.mousepressed(x, y, button)
     end
   end
   
-  if button == 'l' then
+  if button == 'l' and lk.isDown("lshift") then
     local x, y = state.level:get_mouse():get_position():get_vals()
     local cx, cy = state.level:get_camera():get_viewport()
     local x, y = x + cx, y + cy
+    local level_map = state.level:get_level_map()
     
-    state.polygonizer:set_surface_threshold(surface_threshold)
-    local p = state.polygonizer:add_point(x, y, point_radius)
+    level_map:set_polygonizer_surface_threshold(surface_threshold)
+    level_map:add_point_to_polygonizer(x, y, point_radius)
+    level_map:update_polygonizer()
   end
   
 end
@@ -63,9 +65,8 @@ function main_menu_state.load(level)
                state.level.level_map.bbox.y + tpad * TILE_HEIGHT
   local width, height = state.level.level_map.bbox.width - 2 * tpad * TILE_WIDTH, 
                         state.level.level_map.bbox.height - 2 * tpad * TILE_HEIGHT
-  local depth = 1200
+  local depth = 1500
   state.flock = flock:new(state.level, x, y, width, height, depth)
-  state.polygonizer = polygonizer:new(state.level, x, y, width, height)
   
   state.flock:add_boid(500, 500, 200)
 end
@@ -100,23 +101,44 @@ function main_menu_state.update(dt)
   cam:set_target(target, true)
 
   state.flock:update(dt)
-  state.polygonizer:update(dt)
   state.level:update(dt)
 
 end
   
 
---##########################################################################--
+--########################################d##################################--
 --[[----------------------------------------------------------------------]]--
 --     DRAW
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
+local grad = require("gradients/named/orangeyellow")
 function main_menu_state.draw()
   state.level:draw()
   
   state.level.camera:set()
-  state.polygonizer:draw()
   state.flock:draw()
+  
+  
+  local x, y = state.level:get_mouse():get_position():get_vals()
+  local cx, cy = state.level:get_camera():get_viewport()
+  local x, y = x + cx + 0.001, y + cy + 0.001
+  local nx, ny, i = state.level:get_level_map():get_field_vector_at_position({x=x, y=y})
+  local len = 100
+  
+  if i > 0 then
+    local len = 100
+    local xf, yf = x + i * len * nx, y + i * len * ny
+    lg.setColor(0, 255, 0, 255)
+    lg.circle("line", x, y, len)
+    lg.line(x, y, xf, yf)
+  end
+
+  if point_radius and surface_threshold then
+    lg.setColor(0, 0, 0, 255)
+    lg.circle("line", x, y, point_radius)
+    lg.circle("line", x, y, point_radius * surface_threshold)
+  end
+  
   state.level.camera:unset()
 end
 
