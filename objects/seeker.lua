@@ -16,7 +16,7 @@ sk.target = nil
 
 sk.scale = 20     -- pixels / meter
 sk.mass = 1
-sk.inv_mass = 1
+sk.inv_mass = 1 / sk.mass
 
 sk.max_speed = 0.8
 sk.max_force = 15

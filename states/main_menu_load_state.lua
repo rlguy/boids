@@ -76,7 +76,7 @@ function main_menu_load.construct_level_map(level)
   local ncolors = 10
   
   local dir = "gradients/named/"
-  local blend = 0.03
+  local blend = 0.1
   local g_background = tile_gradient:new(require( dir.."allwhite"), ncolors)
   local g_wall1 = tile_gradient:new(require( dir.."allwhite"), ncolors)
   local g_black = tile_gradient:new(require( dir.."greenyellow"), ncolors)
@@ -84,6 +84,7 @@ function main_menu_load.construct_level_map(level)
   g_wall1:add_diagonals()
   g_wall1:add_border(C_BLACK, blend)
   g_black:add_diagonals()
+  g_black:add_border(C_BLACK, 0.2)
   g_background:add_border(C_BLACK, blend)
                                          
   local palette = tile_palette:new()
@@ -102,7 +103,6 @@ function main_menu_load.construct_level_map(level)
   -- source images
   local imgdata_layers = {}
   imgdata_layers[back] = li.newImageData(map_directory.."/"..back)
-  imgdata_layers[wall] = li.newImageData(map_directory.."/"..wall)
   
   -- construct level map
   local level_map = level_map:new(level)
@@ -146,6 +146,11 @@ end
 function main_menu_load.initialize_player(level)
 end
 function main_menu_load.initialize_tile_explosions(level)
+  local flash_curve_data = require('curves/temp01-raw')
+  local flash_curve = curve:new(flash_curve_data, 700)
+  local fade_curve_data = require('curves/fade01')
+  local fade_curve = curve:new(fade_curve_data, 700)
+  level:set_tile_explosion_curves({flash_curve}, {fade_curve})
 end
 function main_menu_load.initialize_cube_shard_set(level)
 end
@@ -163,11 +168,13 @@ function main_menu_load.initialize_polygonizer(level)
   local tile_type = T_WALL
   level_map:set_polygonizer(tile_type, tile_gradient)
   
+  --[[
   level_map:add_point_to_polygonizer(1000, 1000, 600)
   level_map:add_point_to_polygonizer(1300, 1000, 300)
   level_map:set_polygonizer_surface_threshold(0.5)
   level_map:update_polygonizer()
   level_map:_reset_edited_tiles()
+  ]]--
 end
 
 function main_menu_load.post_level_load(level)

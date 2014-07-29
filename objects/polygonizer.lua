@@ -676,6 +676,10 @@ end
 function pgr:mousereleased(x, y, button)
 end
 
+function pgr:remove_primitive(p)
+  self.primitives:remove_primitive(p)
+end
+
 function pgr:add_point(x, y, radius)
   radius = radius or self.default_radius
   

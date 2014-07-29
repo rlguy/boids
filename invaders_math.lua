@@ -330,9 +330,8 @@ end
 --------------------------------------------------------------------------------
 -- returns a random time interval in seconds based on the
 -- poisson process
-local random = math.random()
 function poisson_interval(rate)
-  return (-math.log(1-random())/rate)
+  return (-math.log(1-math.random())/rate)
 end
 
 

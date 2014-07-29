@@ -35,6 +35,7 @@ function bbox:get_height() return self.height end
 function bbox:get_dimensions() return self.x, self.y, self.width, self.height end
 function bbox:set_position(x, y) self.x, self.y = x, y end
 function bbox:translate(tx, ty) self.x, self.y = self.x + tx, self.y + ty end
+function bbox:set(x, y, w, h) self.x, self.y, self.width, self.height = x, y, w, h end
 
 function bbox:get_center()
   return self.x + 0.5 * self.width, self.y + 0.5 * self.height

@@ -1,7 +1,7 @@
 local lg = love.graphics
 local vector3 = require("vector3")
 
-local LX, LY, LZ = 1, 2, -3
+local LX, LY, LZ = 1, 2, -6
 do
   local invlen = 1 / math.sqrt(LX*LX + LY*LY + LZ*LZ)
   LX, LY, LZ = LX * invlen, LY * invlen, LZ * invlen
@@ -32,7 +32,7 @@ bg.max_altitude = 200
 bg.min_alpha = 30
 bg.max_alpha = 70
 
-bg.gradient = require("gradients/named/orangeyellow")
+bg.gradient = require("gradients/named/greenyellow")
 bg.grad_offset = nil
 
 bg.is_current = false

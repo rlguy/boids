@@ -93,6 +93,18 @@ function fk:add_boid(x, y, z, dirx, diry, dirz)
   return new_boid
 end
 
+function fk:remove_boid(boid)
+  local active = self.active_boids
+  for i=#active,1,-1 do
+    if active[i] == boid then
+      table.remove(active, i)
+      self.free_boids[#self.free_boids + 1] = boid
+      boid:destroy()
+      break
+    end
+  end
+end
+
 function fk:get_active_boids()
   return self.active_boids
 end

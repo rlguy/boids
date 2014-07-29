@@ -9,6 +9,20 @@ local state = main_menu_state
 --##########################################################################--
 function main_menu_state.keypressed(key)
   state.flock:keypressed(key)
+  
+  if key == "e" then
+    if state.emitter.is_active then
+      state.emitter:stop_emission()
+    else
+      state.emitter:start_emission()
+    end
+  end
+  
+  if key == "r" then
+    local prims = state.level.level_map.polygonizer.primitives.primitives
+    state.level.level_map:remove_primitive_from_polygonizer(prims[#prims])
+    state.level.level_map:update_polygonizer()
+  end
 end
 function main_menu_state.keyreleased(key)
   state.flock:keyreleased(key)
@@ -40,9 +54,7 @@ function main_menu_state.mousepressed(x, y, button)
     local cx, cy = state.level:get_camera():get_viewport()
     local x, y = x + cx, y + cy
     local level_map = state.level:get_level_map()
-    
-    level_map:set_polygonizer_surface_threshold(surface_threshold)
-    level_map:add_point_to_polygonizer(x, y, point_radius)
+    local p = level_map:add_point_to_polygonizer(x, y, point_radius)
     level_map:update_polygonizer()
   end
   
@@ -69,6 +81,16 @@ function main_menu_state.load(level)
   state.flock = flock:new(state.level, x, y, width, height, depth)
   
   state.flock:add_boid(500, 500, 200)
+  
+  local x, y, z = 1200, 300, 500
+  local dx, dy, dz = 0, 1, 0
+  local r = 200
+  state.emitter = boid_emitter:new(state.level, state.flock, x, y, z, dx, dy, dz, r)
+  state.emitter:set_dead_zone( 0, 3000, 2000, 100)
+  state.emitter:set_emission_rate(30)
+  state.emitter:set_waypoint(x, 3000, z)
+  state.emitter:set_boid_limit(400)
+  state.emitter:stop_emission()
 end
 
 
@@ -100,9 +122,9 @@ function main_menu_state.update(dt)
   target.x, target.y = target.x + tx, target.y + ty
   cam:set_target(target, true)
 
+  state.emitter:update(dt)
   state.flock:update(dt)
   state.level:update(dt)
-
 end
   
 
@@ -117,6 +139,7 @@ function main_menu_state.draw()
   
   state.level.camera:set()
   state.flock:draw()
+  state.emitter:draw()
   
   
   local x, y = state.level:get_mouse():get_position():get_vals()

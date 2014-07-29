@@ -19,8 +19,8 @@ ips.level = level
 ips.debug = true
 ips.primitives = nil
 ips.ricci_blend = 2
-ips.cell_width = 200
-ips.cell_height = 200
+ips.cell_width = 400
+ips.cell_height = 400
 ips.collision_table = nil
 ips.temp_point = nil
 
@@ -44,9 +44,11 @@ function ips:add_primitive(ip)
 end
 
 function ips:remove_primitive(primitive)
-  for i=1,#self.primitives do
+  for i=#self.primitives,1,-1 do
     if self.primitives[i] == primitive then
+      self.collider:remove_object(self.primitives[i]:get_bbox())
       table.remove(self.primitives, i)
+      break
     end
   end
 end

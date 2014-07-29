@@ -105,6 +105,8 @@ loader.load_objects = function()
   implicit_rectangle = require("objects/implicit_rectangle")
   implicit_primitive_set = require("objects/implicit_primitive_set")
   polygonizer = require("objects/polygonizer")
+  
+  boid_emitter = require("objects/boid_emitter")
 end
 
 return loader

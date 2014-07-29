@@ -63,7 +63,7 @@ level_map.polygonizer = nil
 level_map.is_polygonizer_initialized = false
 level_map.polygonizer_tile_type = nil
 level_map.polygonizer_tile_gradient = nil
-level_map.polygonizer_surface_threshold = nil
+level_map.polygonizer_surface_threshold = 0.6
 level_map.polygonizer_edited_tiles = nil
 
 
@@ -190,7 +190,12 @@ function level_map:add_point_to_polygonizer(x, y, radius)
     return
   end
   
-  self.polygonizer:add_point(x, y, radius)
+  local p = self.polygonizer:add_point(x, y, radius)
+  return p
+end
+
+function level_map:remove_primitive_from_polygonizer(p)
+  self.polygonizer:remove_primitive(p)
 end
 
 function level_map:set_polygonizer_surface_threshold(thresh)

@@ -31,6 +31,7 @@ bd.boundary_ypad = 200
 bd.boundary_xpad = 200
 bd.boundary_vector_mix_ratio = 0.25           -- mixes normal to reflected projection
 bd.obstacle_vector_mix_ratio = 0.5
+bd.max_obstacle_reflect_angle = math.pi / 4
 bd.max_boundary_reflect_angle = math.pi / 3  -- boundary rule vector is reflected
                                              -- if angle between boundary normal
                                              -- and boid direction is less than this
@@ -111,8 +112,8 @@ function bd:_init_rule_vectors()
   weights[self.cohesion_vector]   = 0.2
   weights[self.separation_vector] = 3
   weights[self.boundary_vector]   = 3
-  weights[self.waypoint_vector]   = 0.5
-  weights[self.obstacle_vector]   = 4
+  weights[self.waypoint_vector]   = 1
+  weights[self.obstacle_vector]   = 8
   self.rule_weights = weights
 end
 
@@ -218,6 +219,11 @@ end
 
 function bd:clear_waypoint()
   self.waypoint.is_active = false
+end
+
+function bd:destroy()
+  self.collider:remove_object(self)
+  self:clear_waypoint()
 end
 
 
@@ -538,7 +544,7 @@ function bd:_update_obstacle_rule()
   local dot = dir.x * vect.x + dir.y * vect.y + dir.z * vect.z
   local angle = math.acos(-dot)
   local eps = 0.0001
-  if angle > eps and angle < self.max_boundary_reflect_angle then
+  if angle > eps and angle < self.max_obstacle_reflect_angle then
     local dot = dir.x * vect.x + dir.y * vect.y + dir.z * vect.z
     local rx = -2 * dot * vect.x + dir.x
     local ry = -2 * dot * vect.y + dir.y
