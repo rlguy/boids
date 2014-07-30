@@ -65,6 +65,8 @@ function collider:new(level, x, y, width, height, cell_width, cell_height)
 	collider.bbox = bbox
 	collider.cell_width = cw
 	collider.cell_height = ch
+	collider.inv_cell_width = 1 / cw
+	collider.inv_cell_height = 1 / ch
 	collider.cols = cols
 	collider.rows = rows
 	collider.cells = cells
@@ -527,8 +529,8 @@ end
 ------------------------------------------------------------------------------
 -- returns self.cells col, row index of cell containing world point x, y
 function collider:get_cell_index(x, y)
-	local i = math.floor((x - self.x) / self.cell_width) + 1
-	local j = math.floor((y - self.y) / self.cell_height) + 1
+	local i = math.floor((x - self.x) * self.inv_cell_width) + 1
+	local j = math.floor((y - self.y) * self.inv_cell_height) + 1
 	
 	if x - self.x == self.width then
 	  i = i - 1
@@ -565,13 +567,13 @@ function collider:draw()
 		local x, y = cell.x, cell.y
 		local w, h = self.cell_width, self.cell_height
 		lg.setColor(0, 0, 255, 120)
-		--lg.rectangle('line', x+1.5, y+1.5, w-3, h-3)
+		lg.rectangle('line', x+1.5, y+1.5, w-3, h-3)
 		
 		-- count how many objects in cell
 		local count = cell.count
 		lg.setColor(50, 50, 50, 255)
 		if count > 0 then
-		  lg.setColor(0, 180, 0, 255)
+		  lg.setColor(255, 255, 0, 255)
 		end
 		lg.print(count, x + 5, y + 5)
 		

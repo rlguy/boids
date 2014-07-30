@@ -23,7 +23,7 @@ bd.min_roll_speed = 0
 bd.max_roll_speed = 4
 bd.min_scale = 0.5
 bd.max_scale = 1.3
-bd.field_of_view = 1 * math.pi
+bd.field_of_view = 1.3 * math.pi
 bd.sight_radius = 200
 bd.separation_radius = 0.2 * bd.sight_radius
 bd.boundary_zpad = 200
@@ -158,7 +158,8 @@ function bd:init(parent_flock, x, y, z, dirx, diry, dirz)
   if dirx and diry and dirz then
     vector3.set(self.direction, dirx, diry, dirz)
   else
-    vector3.clone(self.default_direction, self.direction)
+    local dx, dy, dz = random_direction3()
+    vector3.set(self.direction, dx, dy, dz)
   end
   
   -- seeker
@@ -188,6 +189,10 @@ function bd:set_position(x, y, z)
   local pos = self.temp_vector
   vector3.set(pos, x, y, nil)
   self.map_point:update_position(pos)
+end
+
+function bd:set_gradient(grad_table)
+  self.body_graphic:set_gradient(grad_table)
 end
 
 function bd:get_position()
@@ -634,10 +639,10 @@ function bd:_draw_debug_rule_vector(vector, label)
   if not (v.x == 0 and v.y == 0 and v.z == 0) then
     local len = self.sight_radius
     local x2, y2 = x1 + v.x * len, y1 + v.y * len
-    lg.setColor(0, 0, 0, 255)
+    lg.setColor(255, 255, 0, 255)
     lg.setLineWidth(3)
     lg.line(x1, y1, x2, y2)
-    lg.setColor(50, 50, 50, 255)
+    lg.setColor(255, 255, 0, 255)
     lg.print(label, x2, y2)
   end
   
@@ -661,35 +666,21 @@ function bd:draw_debug()
   lg.line(x1, y1, x2, y2)
   
   -- sight
-  lg.setColor(0, 0, 255, 255)
+  lg.setColor(0, 0, 0, 255)
   lg.circle("line", x1, y1, self.sight_radius)
-  lg.setColor(0, 0, 255, 60)
-  lg.circle("line", x1, y1, self.separation_radius)
   
-  -- neigbours
-  local nbs = self.neighbours
-  local len = 10
-  lg.setColor(0, 0, 255, 255)
-  for i=1,#nbs do
-    local b = nbs[i]
-    if b ~= self then
-      local x, y = b.position.x, b.position.y
-      lg.line(x-len, y, x+len, y)
-      lg.line(x, y-len, x, y+len)
-    end
-  end
   
   -- neigbours in view
   local nbs = self.neighbours_in_view
   local len = 10
-  lg.setColor(0, 200, 0, 255)
+  lg.setColor(0, 0, 0, 255)
   for i=1,#nbs do
     local b = nbs[i]
     if b ~= self then
       local x, y = b.position.x, b.position.y
       lg.line(x-len, y, x+len, y)
       lg.line(x, y-len, x, y+len)
-      lg.circle("line", x, y, len * 2)
+      lg.circle("fill", x, y, len)
     end
   end
   
@@ -703,6 +694,7 @@ function bd:draw_debug()
   local len = self.sight_radius
   local p1x, p1y = x1 + len * dirx1, y1 + len * diry1
   local p2x, p2y = x1 + len * dirx2, y1 + len * diry2
+  lg.setColor(0, 0, 0, 255)
   lg.line(x1, y1, p1x, p1y)
   lg.line(x1, y1, p2x, p2y)
   
@@ -723,7 +715,7 @@ function bd:draw_debug()
     dx, dy, dz = dx/len, dy/len, dz/len
     local r = self.sight_radius
     local x2, y2 = x1 + dx * r, y1 + dy * r
-    lg.setColor(255, 50, 0, 255)
+    lg.setColor(255, 255, 0, 255)
     lg.setLineWidth(3)
     lg.line(x1, y1, x2, y2)
     lg.print("Target", x2, y2)
@@ -751,6 +743,7 @@ function bd:draw_debug()
   end
   
   
+  
   self.seeker:draw()
 end
 
@@ -760,6 +753,14 @@ function bd:draw()
   local x, y, z = self:get_position()
   self.body_graphic:draw(x, y)
   
+  --[[
+  lg.setLineWidth(1)
+  lg.setColor(0, 0, 0, 10)
+  for i=1,#self.neighbours do
+    local b = self.neighbours[i]
+    lg.line(x, y, b.position.x, b.position.y)
+  end
+  ]]--
 end
 
 return bd

@@ -70,7 +70,10 @@ function love.load(args)
   INVADERS:add_state(states.main_menu_state, "main_menu_state")
   INVADERS:add_state(states.level1_load_state, "level1_load_state")
   INVADERS:add_state(states.level1_game_state, "level1_game_state")
-  INVADERS:load_state("main_menu_load_state")
+  
+  INVADERS:add_state(states.main_screen_load_state, "main_screen_load_state")
+  INVADERS:add_state(states.main_screen_state, "main_screen_state")
+  INVADERS:load_state("main_screen_load_state")
 
 end
 

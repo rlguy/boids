@@ -273,9 +273,9 @@ function fi:_draw_selected_boids()
   for _,b in pairs(self.selected_boids) do
     local x, y = math.floor(b.position.x), math.floor(b.position.y)
     local r = self.select_boid_radius
-    lg.setColor(0, 200, 0, 255)
+    lg.setColor(0, 0, 0, 255)
     lg.circle("line", x, y, r)
-    lg.setColor(0, 200, 0, 100)
+    lg.setColor(0, 0, 0, 100)
     lg.circle("line", x, y, r - 3)
     
     if self.debug then

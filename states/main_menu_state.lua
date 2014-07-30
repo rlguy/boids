@@ -108,7 +108,7 @@ function main_menu_state.load(level)
   local dx, dy, dz = 0, 1, 0.5
   local r = 200
   state.emitter = boid_emitter:new(state.level, state.flock, x, y, z, dx, dy, dz, r)
-  state.emitter:set_dead_zone( 0, 3000, 2000, 100)
+  state.emitter:set_dead_zone( 0, 4000, 3000, 100)
   state.emitter:set_emission_rate(30)
   --state.emitter:set_waypoint(x, 3000, z)
   state.emitter:set_boid_limit(400)

@@ -130,7 +130,7 @@ end
 
 ------------------------------------------------------------------------------
 function mouse_input:draw()
-  lg.setColor(255, 0, 0, 255)
+  lg.setColor(0, 0, 0, 255)
   lg.setPointSize(3)
   local x, y = self.screen_pos:get_vals()
   local len = 10

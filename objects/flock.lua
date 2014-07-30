@@ -12,10 +12,13 @@ fk.bbox = nil
 fk.temp_collision_bbox = nil
 fk.free_boids = nil
 fk.active_boids = nil
+fk.collider_cell_width = 150
+fk.collider_cell_height = 150
 
 fk.user_interface = nil
 
 fk.num_initial_boids = 1000
+fk.gradient = require("gradients/named/greenyellow")
 
 local fk_mt = { __index = fk }
 function fk:new(level, x, y, width, height, depth)
@@ -73,6 +76,10 @@ function fk:get_bbox()
   return self.bbox
 end
 
+function fk:set_gradient(grad_table)
+  self.gradient = grad_table
+end
+
 function fk:add_boid(x, y, z, dirx, diry, dirz)
   z = z or 0
   if not x or not y then
@@ -88,6 +95,7 @@ function fk:add_boid(x, y, z, dirx, diry, dirz)
     new_boid = boid:new(self.level)
   end
   new_boid:init(self, x, y, z, dirx, diry, dirz)
+  new_boid:set_gradient(self.gradient)
   self.active_boids[#self.active_boids + 1] = new_boid
   
   return new_boid

@@ -2,6 +2,8 @@ local fonts = {}
 fonts.courier = love.graphics.newFont("fonts/courierbold.ttf", 30)
 fonts.courier_large = love.graphics.newFont("fonts/courierbold.ttf", 72)
 fonts.courier_small = love.graphics.newFont("fonts/courierbold.ttf", 20)
+fonts.bebas_header = love.graphics.newFont("fonts/BebasNeue.otf", 60)
+fonts.verdana_text = love.graphics.newFont("fonts/Verdana.ttf", 40)
 
 fonts.game_fonts = {}
 
