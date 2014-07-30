@@ -26,6 +26,10 @@ function main_screen_state.keypressed(key)
     end
     state.emitter:start_emission()
   end
+  
+  if key == "return" then
+    INVADERS:load_next_state()
+  end
 end
 function main_screen_state.keyreleased(key)
   state.flock:keyreleased(key)
@@ -134,7 +138,6 @@ end
 --     DRAW
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
-local grad = require("gradients/named/orangeyellow")
 function main_screen_state.draw()
   state.level:draw()
 

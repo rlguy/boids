@@ -22,6 +22,7 @@ fi.select_boid_radius = 28
 fi.select_boid_bbox = nil
 fi.selected_boids = nil
 fi.temp_collision_table = nil
+fi.is_camera_tracking = true
 
 local fi_mt = { __index = fi }
 function fi:new(level, parent_flock)
@@ -140,6 +141,14 @@ function fi:add_boid(x, y, z, dx, dy, dz)
   end
 end
 
+function fi:set_camera_tracking_on()
+  self.is_camera_tracking = true
+end
+
+function fi:set_camera_tracking_off()
+  self.is_camera_tracking = false
+end
+
 function fi:_set_waypoint_for_selected_boids(x, y)
   -- calculate z as average z of selected boids
   local z = 0
@@ -160,19 +169,21 @@ end
 function fi:_update_selected_boids(dt)
   if not self.left_click_mode == select then return end
   
-  local track_x, track_y = 0, 0
-  local count = 0
-  for _,b in pairs(self.selected_boids) do
-    track_x, track_y = track_x + b.position.x, track_y + b.position.y
-    count = count + 1
-  end
-  if count == 0 then return end
-  track_x = track_x / count
-  track_y = track_y / count
+  if self.is_camera_tracking then
+    local track_x, track_y = 0, 0
+    local count = 0
+    for _,b in pairs(self.selected_boids) do
+      track_x, track_y = track_x + b.position.x, track_y + b.position.y
+      count = count + 1
+    end
+    if count == 0 then return end
+    track_x = track_x / count
+    track_y = track_y / count
   
-  local target = vector2:new(track_x, track_y)
-  local cam = self.level:get_camera()
-  cam:set_target(target, true)
+    local target = vector2:new(track_x, track_y)
+    local cam = self.level:get_camera()
+    cam:set_target(target, true)
+  end
   
   
 end

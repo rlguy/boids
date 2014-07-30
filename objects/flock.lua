@@ -80,6 +80,14 @@ function fk:set_gradient(grad_table)
   self.gradient = grad_table
 end
 
+function fk:set_camera_tracking_off()
+  self.user_interface:set_camera_tracking_off()
+end
+
+function fk:set_camera_tracking_on()
+  self.user_interface:set_camera_tracking_on()
+end
+
 function fk:add_boid(x, y, z, dirx, diry, dirz)
   z = z or 0
   if not x or not y then
