@@ -77,8 +77,11 @@ function love.load(args)
   INVADERS:add_state(states.flockmates_screen_state, "flockmates_screen_state")
   INVADERS:add_state(states.flockmates_demo_load_state, "flockmates_demo_load_state")
   INVADERS:add_state(states.flockmates_demo_state, "flockmates_demo_state")
-  INVADERS:load_state("main_screen_load_state")
-  --INVADERS:load_state("flockmates_screen_state")
+  INVADERS:add_state(states.query_screen_state, "query_screen_state")
+  INVADERS:add_state(states.query_demo_load_state, "query_demo_load_state")
+  INVADERS:add_state(states.query_demo_state, "query_demo_state")
+  --INVADERS:load_state("main_screen_load_state")
+  INVADERS:load_state("query_screen_state")
 
 end
 

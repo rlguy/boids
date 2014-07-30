@@ -566,7 +566,7 @@ function collider:draw()
 		local cell = self.cells_in_view[i]
 		local x, y = cell.x, cell.y
 		local w, h = self.cell_width, self.cell_height
-		lg.setColor(0, 0, 255, 120)
+		lg.setColor(0, 0, 0, 120)
 		lg.rectangle('line', x+1.5, y+1.5, w-3, h-3)
 		
 		-- count how many objects in cell
@@ -580,15 +580,15 @@ function collider:draw()
 		-- draw objects in cell
 		local MAP_POINT = MAP_POINT
 		local BBOX = BBOX
-		lg.setColor(0, 255, 0, 255)
 		lg.setPointSize(7)
 		for i,id in pairs(cell.contents) do
 			local obj = self.objects[id]
 			if obj and obj.table == MAP_POINT then
-				lg.point(obj.cdata[self].x, obj.cdata[self].y)
+			  lg.setColor(255, 255, 255, 255)
+			  lg.circle("fill", obj.cdata[self].x, obj.cdata[self].y, 3)
 			elseif obj and obj.table == BBOX then
-				lg.setColor(255, 0, 0, 255)
-				lg.setLineWidth(1)
+			  lg.setColor(255, 255, 255, 255)
+				lg.setLineWidth(3)
 				local x, y = obj.cdata[self].x1, obj.cdata[self].y1
 				local w, h = obj.cdata[self].width, obj.cdata[self].height
 				lg.rectangle('line', x, y, w, h)
