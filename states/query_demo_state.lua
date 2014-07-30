@@ -55,7 +55,7 @@ function query_demo_state.load(level)
   state.collider_hash = {}
   local boids = state.boids
   for i=1,#boids do
-    if math.random() < 0.05 then
+    if math.random() < 0.02 then
       local b = boids[i]
       b.state_bbox = bbox:new(0, 0, 0, 0)
     end

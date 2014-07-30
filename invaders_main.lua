@@ -74,14 +74,24 @@ function love.load(args)
   INVADERS:add_state(states.main_screen_load_state, "main_screen_load_state")
   INVADERS:add_state(states.main_screen_state, "main_screen_state")
   INVADERS:add_state(states.overview_screen_state, "overview_screen_state")
+  
   INVADERS:add_state(states.flockmates_screen_state, "flockmates_screen_state")
   INVADERS:add_state(states.flockmates_demo_load_state, "flockmates_demo_load_state")
   INVADERS:add_state(states.flockmates_demo_state, "flockmates_demo_state")
+  
   INVADERS:add_state(states.query_screen_state, "query_screen_state")
   INVADERS:add_state(states.query_demo_load_state, "query_demo_load_state")
   INVADERS:add_state(states.query_demo_state, "query_demo_state")
+  
+  INVADERS:add_state(states.rules_screen_state, "rules_screen_state")
+  INVADERS:add_state(states.rule_alignment_screen_state, "rule_alignment_screen_state")
+  INVADERS:add_state(states.rule_cohesion_screen_state, "rule_cohesion_screen_state")
+  INVADERS:add_state(states.rule_separation_screen_state, "rule_separation_screen_state")
+  INVADERS:add_state(states.rules_demo_load_state, "rules_demo_load_state")
+  INVADERS:add_state(states.rules_demo_state, "rules_demo_state")
+  
   --INVADERS:load_state("main_screen_load_state")
-  INVADERS:load_state("query_screen_state")
+  INVADERS:load_state("rules_demo_load_state")
 
 end
 

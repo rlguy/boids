@@ -1,22 +1,22 @@
-local query_screen_state = state:new()
-query_screen_state.label = 'query_screen_state'
-local state = query_screen_state
+local rules_screen_state = state:new()
+rules_screen_state.label = 'rules_screen_state'
+local state = rules_screen_state
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--
 --      INPUT
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
-function query_screen_state.keypressed(key)
+function rules_screen_state.keypressed(key)
   if key == "return" then
     INVADERS:load_next_state()
   end
 end
-function query_screen_state.keyreleased(key)
+function rules_screen_state.keyreleased(key)
 end
-function query_screen_state.mousepressed(x, y, button)
+function rules_screen_state.mousepressed(x, y, button)
 end
-function query_screen_state.mousereleased(x, y, button)
+function rules_screen_state.mousereleased(x, y, button)
 end
 
 
@@ -25,7 +25,7 @@ end
 --      LOAD
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
-function query_screen_state.load(level)
+function rules_screen_state.load(level)
   lg.setBackgroundColor(0, 0, 0, 255)
 end
 
@@ -35,7 +35,7 @@ end
 --      UPDATE
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
-function query_screen_state.update(dt)
+function rules_screen_state.update(dt)
 
 end
   
@@ -45,7 +45,7 @@ end
 --     DRAW
 --[[----------------------------------------------------------------------]]--
 --##########################################################################--
-function query_screen_state.draw()
+function rules_screen_state.draw()
   local width, height = 1024, 768
   local xpad = 100
   local ypad = 60
@@ -55,24 +55,24 @@ function query_screen_state.draw()
 
   lg.setFont(FONTS.bebas_header)
   lg.setColor(251, 121, 0, 255)
-  lg.print("Querying Flockmates", x, y)
+  lg.print("Boids Follow Rules", x, y)
   
   local y = y + 200
   local x = x + 20
   local ystep = 100
   lg.setFont(FONTS.verdana_text)
   lg.setColor(255, 255, 255, 255)
-  lg.print("Every boid is aware of its neighbours", x, y)
+  lg.print("Each rule produces a vector", x, y)
   
   y = y + ystep
-  lg.print("Naive solution runs in O(n^2)", x, y)
+  lg.print("Sum rule vectors to create a target", x, y)
   
   y = y + ystep
-  lg.print("Use 2D fixed grid spatial partition for\nfast neighbour queries", x, y)
+  lg.print("Boids move towards their targets", x, y)
   
 end
 
-return query_screen_state
+return rules_screen_state
 
 
 

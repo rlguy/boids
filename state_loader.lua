@@ -16,5 +16,12 @@ states.flockmates_demo_state = require('states/flockmates_demo_state')
 states.query_screen_state = require('states/query_screen_state')
 states.query_demo_load_state = require('states/query_demo_load_state')
 states.query_demo_state = require('states/query_demo_state')
+
+states.rules_screen_state = require('states/rules_screen_state')
+states.rule_alignment_screen_state = require('states/rule_alignment_screen_state')
+states.rule_cohesion_screen_state = require('states/rule_cohesion_screen_state')
+states.rule_separation_screen_state = require('states/rule_separation_screen_state')
+states.rules_demo_load_state = require('states/rules_demo_load_state')
+states.rules_demo_state = require('states/rules_demo_state')
   
 return states

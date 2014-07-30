@@ -21,6 +21,7 @@ be.active_boids = nil
 be.waypoint = nil
 be.is_waypoint_set = false
 be.is_active = false
+be.is_random_direction = false
 
 local be_mt = { __index = be }
 function be:new(level, flock, x, y, z, dirx, diry, dirz, radius)
@@ -54,6 +55,14 @@ end
 function be:set_direction(dx, dy, dz)
   vector3.set(self.direction, dx, dy, dz)
   vector3.normalize(be.direction)
+end
+
+function be:set_random_direction_on()
+  self.is_random_direction = true
+end
+
+function be:set_random_direction_off()
+  self.is_random_direction = false
 end
 
 function be:set_emission_rate(r)
@@ -114,7 +123,13 @@ function be:_emit_boid()
 
   local x, y, z = self:_get_spawn_point()
   local dir = self.direction
-  boid = self.flock:add_boid(x, y, z, dir.x, dir.y, dir.z)
+  local boid
+  if self.is_random_direction then
+    local dx, dy, dz = random_direction3()
+    boid = self.flock:add_boid(x, y, z, dx, dy, dz)
+  else
+    boid = self.flock:add_boid(x, y, z, dir.x, dir.y, dir.z)
+  end
   self.active_boids[#self.active_boids + 1] = boid
   
   if self.is_waypoint_set then
