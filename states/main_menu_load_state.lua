@@ -73,18 +73,18 @@ end
 function main_menu_load.construct_level_map(level)
   -- colours
   local C_BLACK = {0, 0, 0, 255}
-  local ncolors = 10
+  local ncolors = 200
   
   local dir = "gradients/named/"
-  local blend = 0.1
-  local g_background = tile_gradient:new(require( dir.."allwhite"), ncolors)
+  local blend = 0.05
+  local g_background = tile_gradient:new(require( dir.."skyblue"), ncolors)
   local g_wall1 = tile_gradient:new(require( dir.."allwhite"), ncolors)
-  local g_black = tile_gradient:new(require( dir.."greenyellow"), ncolors)
+  local g_black = tile_gradient:new(require( dir.."aqua"), ncolors)
                                          
   g_wall1:add_diagonals()
   g_wall1:add_border(C_BLACK, blend)
   g_black:add_diagonals()
-  g_black:add_border(C_BLACK, 0.2)
+  g_black:add_border(C_BLACK, 0.05)
   g_background:add_border(C_BLACK, blend)
                                          
   local palette = tile_palette:new()

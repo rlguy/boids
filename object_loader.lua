@@ -107,6 +107,7 @@ loader.load_objects = function()
   polygonizer = require("objects/polygonizer")
   
   boid_emitter = require("objects/boid_emitter")
+  boid_food_source = require("objects/boid_food_source")
 end
 
 return loader

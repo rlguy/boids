@@ -84,7 +84,7 @@ function love.update(dt)
     if love.keyboard.isDown('x') then dt = dt * 3 end
   end
   
-  dt = math.min(dt, 1/30)
+  dt = math.min(dt, 1/20)
 
   MASTER_TIMER:update(dt)
   MOUSE_INPUT:update(dt)

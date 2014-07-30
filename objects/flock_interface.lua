@@ -172,7 +172,7 @@ function fi:_update_selected_boids(dt)
   
   local target = vector2:new(track_x, track_y)
   local cam = self.level:get_camera()
-  --cam:set_target(target, true)
+  cam:set_target(target, true)
   
   
 end

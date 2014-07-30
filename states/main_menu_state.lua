@@ -29,7 +29,7 @@ function main_menu_state.keypressed(key)
     for i=1,#prims do
       local p = prims[i]
       local r = p:get_radius()
-      local factor = 0.9
+      local factor = 0.95
       p:set_radius(r * factor)
     end
     state.level.level_map:update_source_polygonizer()
@@ -71,8 +71,13 @@ function main_menu_state.mousepressed(x, y, button)
     level_map:update_polygonizer()
     ]]--
     
+    --[[
     local p = level_map:add_point_to_source_polygonizer(x, y, point_radius)
     level_map:update_source_polygonizer()
+    ]]--
+    
+    state.food_source:add_food(x, y, point_radius)
+    state.food_source:force_polygonizer_update()
   end
   
 end
@@ -100,14 +105,16 @@ function main_menu_state.load(level)
   state.flock:add_boid(500, 500, 200)
   
   local x, y, z = 1200, 300, 500
-  local dx, dy, dz = 0, 1, 0
+  local dx, dy, dz = 0, 1, 0.5
   local r = 200
   state.emitter = boid_emitter:new(state.level, state.flock, x, y, z, dx, dy, dz, r)
   state.emitter:set_dead_zone( 0, 3000, 2000, 100)
   state.emitter:set_emission_rate(30)
-  state.emitter:set_waypoint(x, 3000, z)
+  --state.emitter:set_waypoint(x, 3000, z)
   state.emitter:set_boid_limit(400)
   state.emitter:stop_emission()
+  
+  state.food_source = boid_food_source:new(state.level, state.flock)
 end
 
 
@@ -142,6 +149,7 @@ function main_menu_state.update(dt)
   state.emitter:update(dt)
   state.flock:update(dt)
   state.level:update(dt)
+  state.food_source:update(dt)
 end
   
 
@@ -157,6 +165,7 @@ function main_menu_state.draw()
   state.level.camera:set()
   state.flock:draw()
   state.emitter:draw()
+  state.food_source:draw()
   
   
   local x, y = state.level:get_mouse():get_position():get_vals()
