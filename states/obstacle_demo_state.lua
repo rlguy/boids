@@ -258,9 +258,7 @@ function obstacle_demo_state.draw()
     lg.print(state.fade_text, x, y)
   end
   
-  
-  
-  
+
   
 end
 

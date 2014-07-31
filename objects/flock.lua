@@ -88,7 +88,7 @@ function fk:set_camera_tracking_on()
   self.user_interface:set_camera_tracking_on()
 end
 
-function fk:add_boid(x, y, z, dirx, diry, dirz)
+function fk:add_boid(x, y, z, dirx, diry, dirz, gradient)
   z = z or 0
   if not x or not y then
     print("ERROR in flock:add_boid - no position specified")
@@ -103,7 +103,11 @@ function fk:add_boid(x, y, z, dirx, diry, dirz)
     new_boid = boid:new(self.level)
   end
   new_boid:init(self, x, y, z, dirx, diry, dirz)
-  new_boid:set_gradient(self.gradient)
+  if gradient then
+    new_boid:set_gradient(gradient)
+  else
+    new_boid:set_gradient(self.gradient)
+  end
   self.active_boids[#self.active_boids + 1] = new_boid
   
   return new_boid

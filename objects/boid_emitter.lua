@@ -22,6 +22,7 @@ be.waypoint = nil
 be.is_waypoint_set = false
 be.is_active = false
 be.is_random_direction = false
+be.gradient = nil
 
 local be_mt = { __index = be }
 function be:new(level, flock, x, y, z, dirx, diry, dirz, radius)
@@ -64,7 +65,11 @@ end
 
 function be:set_direction(dx, dy, dz)
   vector3.set(self.direction, dx, dy, dz)
-  vector3.normalize(be.direction)
+  vector3.normalize(self.direction)
+end
+
+function be:set_gradient(grad_table)
+  self.gradient = grad_table
 end
 
 function be:set_random_direction_on()
@@ -136,9 +141,9 @@ function be:_emit_boid()
   local boid
   if self.is_random_direction then
     local dx, dy, dz = random_direction3()
-    boid = self.flock:add_boid(x, y, z, dx, dy, dz)
+    boid = self.flock:add_boid(x, y, z, dx, dy, dz, self.gradient)
   else
-    boid = self.flock:add_boid(x, y, z, dir.x, dir.y, dir.z)
+    boid = self.flock:add_boid(x, y, z, dir.x, dir.y, dir.z, self.gradient)
   end
   self.active_boids[#self.active_boids + 1] = boid
   

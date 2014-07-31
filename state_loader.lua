@@ -27,5 +27,21 @@ states.rules_demo_state = require('states/rules_demo_state')
 states.obstacle_screen_state = require('states/obstacle_screen_state')
 states.obstacle_demo_load_state = require('states/obstacle_demo_load_state')
 states.obstacle_demo_state = require('states/obstacle_demo_state')
+
+states.food_screen_state = require('states/food_screen_state')
+states.food_demo_load_state = require('states/food_demo_load_state')
+states.food_demo_state = require('states/food_demo_state')
   
+states.graph_screen_state = require('states/graph_screen_state')
+states.graph_demo_load_state = require('states/graph_demo_load_state')
+states.graph_demo_state = require('states/graph_demo_state')
+
+states.animation_screen_state = require('states/animation_screen_state')
+states.animation_demo_load_state = require('states/animation_demo_load_state')
+states.animation_demo_state = require('states/animation_demo_state')
+
+states.emitter_screen_state = require('states/emitter_screen_state')
+states.emitter_demo_load_state = require('states/emitter_demo_load_state')
+states.emitter_demo_state = require('states/emitter_demo_state')
+
 return states

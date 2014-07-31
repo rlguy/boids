@@ -227,7 +227,7 @@ function bd:clear_waypoint()
 end
 
 function bd:destroy()
-  self.collider:remove_object(self)
+  self.collider:remove_object(self.map_point)
   self:clear_waypoint()
 end
 

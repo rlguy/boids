@@ -41,6 +41,7 @@ function bfs:add_food(x, y, radius)
   self.sources[#self.sources + 1] = self:_new_food_source(x, y, radius, p)
   
   self:_calculate_total_area()
+  return p
 end
 
 function bfs:force_polygonizer_update()
@@ -57,6 +58,16 @@ end
 
 function bfs:set_surface_threshold(thresh)
   self.surface_threshold = thresh
+end
+
+function bfs:remove_food_source(primitive)
+  self.level_map.source_polygonizer:remove_primitive(primitive)
+  for i=#self.sources,1,-1 do
+    if self.sources[i].primitive == primitive then
+      table.remove(self.sources, i)
+      break
+    end
+  end
 end
 
 function bfs:_new_food_source(x, y, radius, primitive)

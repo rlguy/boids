@@ -94,8 +94,24 @@ function love.load(args)
   INVADERS:add_state(states.obstacle_demo_load_state, "obstacle_demo_load_state")
   INVADERS:add_state(states.obstacle_demo_state, "obstacle_demo_state")
   
-  --INVADERS:load_state("main_screen_load_state")
-  INVADERS:load_state("obstacle_demo_load_state")
+  INVADERS:add_state(states.food_screen_state, "food_screen_state")
+  INVADERS:add_state(states.food_demo_load_state, "food_demo_load_state")
+  INVADERS:add_state(states.food_demo_state, "food_demo_state")
+  
+  INVADERS:add_state(states.graph_screen_state, "graph_screen_state")
+  INVADERS:add_state(states.graph_demo_load_state, "graph_demo_load_state")
+  INVADERS:add_state(states.graph_demo_state, "graph_demo_state")
+  
+  INVADERS:add_state(states.animation_screen_state, "animation_screen_state")
+  INVADERS:add_state(states.animation_demo_load_state, "animation_demo_load_state")
+  INVADERS:add_state(states.animation_demo_state, "animation_demo_state")
+  
+  INVADERS:add_state(states.emitter_screen_state, "emitter_screen_state")
+  INVADERS:add_state(states.emitter_demo_load_state, "emitter_demo_load_state")
+  INVADERS:add_state(states.emitter_demo_state, "emitter_demo_state")
+  
+  INVADERS:load_state("main_screen_load_state")
+  --INVADERS:load_state("emitter_screen_state")
 
 end
 
