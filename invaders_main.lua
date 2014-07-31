@@ -90,8 +90,12 @@ function love.load(args)
   INVADERS:add_state(states.rules_demo_load_state, "rules_demo_load_state")
   INVADERS:add_state(states.rules_demo_state, "rules_demo_state")
   
+  INVADERS:add_state(states.obstacle_screen_state, "obstacle_screen_state")
+  INVADERS:add_state(states.obstacle_demo_load_state, "obstacle_demo_load_state")
+  INVADERS:add_state(states.obstacle_demo_state, "obstacle_demo_state")
+  
   --INVADERS:load_state("main_screen_load_state")
-  INVADERS:load_state("rules_demo_load_state")
+  INVADERS:load_state("obstacle_demo_load_state")
 
 end
 

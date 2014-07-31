@@ -48,6 +48,16 @@ function be:new(level, flock, x, y, z, dirx, diry, dirz, radius)
   return be
 end
 
+function be:reset()
+  self.is_active = false
+  for i=#self.active_boids,1,-1 do
+    local b = self.active_boids[i]
+    self.active_boids[i] = nil
+    self:_destroy_boid(b)
+  end
+  self.boid_count = 0
+end
+
 function be:set_position(x, y, z)
   vector3.set(self.position, x, y, z)
 end

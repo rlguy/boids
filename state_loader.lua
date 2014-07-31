@@ -23,5 +23,9 @@ states.rule_cohesion_screen_state = require('states/rule_cohesion_screen_state')
 states.rule_separation_screen_state = require('states/rule_separation_screen_state')
 states.rules_demo_load_state = require('states/rules_demo_load_state')
 states.rules_demo_state = require('states/rules_demo_state')
+
+states.obstacle_screen_state = require('states/obstacle_screen_state')
+states.obstacle_demo_load_state = require('states/obstacle_demo_load_state')
+states.obstacle_demo_state = require('states/obstacle_demo_state')
   
 return states
