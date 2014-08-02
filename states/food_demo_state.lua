@@ -16,7 +16,7 @@ function food_demo_state.keypressed(key)
   end
   
   if key == "return" then
-    INVADERS:load_next_state()
+    BOIDS:load_next_state()
   end
   
   if key == "r" then

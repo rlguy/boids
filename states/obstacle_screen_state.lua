@@ -9,7 +9,7 @@ local state = obstacle_screen_state
 --##########################################################################--
 function obstacle_screen_state.keypressed(key)
   if key == "return" then
-    INVADERS:load_next_state()
+    BOIDS:load_next_state()
   end
 end
 function obstacle_screen_state.keyreleased(key)

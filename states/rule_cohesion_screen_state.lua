@@ -9,7 +9,7 @@ local state = rule_cohesion_screen_state
 --##########################################################################--
 function rule_cohesion_screen_state.keypressed(key)
   if key == "return" then
-    INVADERS:load_next_state()
+    BOIDS:load_next_state()
   end
 end
 function rule_cohesion_screen_state.keyreleased(key)

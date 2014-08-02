@@ -145,7 +145,7 @@ function rules_demo_load.update(dt)
 
   if level:is_loaded() then
     state.post_level_load(level)
-    INVADERS:load_next_state(level)
+    BOIDS:load_next_state(level)
   end
 end
   

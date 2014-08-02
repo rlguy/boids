@@ -11,7 +11,7 @@ function flockmates_demo_state.keypressed(key)
   state.flock:keypressed(key)
   
   if key == "return" then
-    INVADERS:load_next_state()
+    BOIDS:load_next_state()
   end
 end
 function flockmates_demo_state.keyreleased(key)

@@ -9,7 +9,7 @@ local state = food_screen_state
 --##########################################################################--
 function food_screen_state.keypressed(key)
   if key == "return" then
-    INVADERS:load_next_state()
+    BOIDS:load_next_state()
   end
 end
 function food_screen_state.keyreleased(key)
