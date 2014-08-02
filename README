@@ -1,0 +1,64 @@
+Boid Flocking Behaviour
+
+This program is an implementation of a boid flocking behaviour simulation. 
+Features include basic boid rules (alignment, cohersion, separation), obstacle 
+avoidance, and food sources.
+
+Description of Important Files:
+  objects/boid.lua          
+      - Routines for updating orientation and position of a single boid
+                            
+  objects/boid_graphic.lua  
+      - Routines for handling drawing of the boid triangle graphic.
+   
+  objects/seeker.lua
+      - A point that steers towards a target. Based on Craig Reynold's
+        steering behaviour (http://www.red3d.com/cwr/steer/). Used to help
+        boids steer towards a target.
+      
+  objects/flock.lua         
+      - Manages a flock of boids. Handles adding and removing boids, flockmate 
+        queries, and boid graphics.
+                              
+  objects/flock_interface.lua
+      - A user interface to the flock object. Handles mouse input for selection
+        of boids and setting a boid's waypoint.
+        
+  objects/boid_emitter.lua
+      - spawns boids at a specified rate. Boids are spawned within a specified
+        radius of a point on a plane.
+        
+  objects/boid_food_source.lua
+      - Manages multiple food resources and their depletion. Handles updates to 
+        the polygonizer and field functions as boids "eat" the resources.
+                            
+  objects/implicit_point.lua
+      - primitive for the field function of a point
+      
+  objects/implicit_line.lua
+      - primitive for the field function of a line
+      
+  objects/implicit_rectangle.lua
+      - primitive for the field function of a rectangle
+      
+  objects/implicit_primitive_set.lua
+      - manages a set of primitives. Handles adding/removing primitives and
+        evaluating field functions using either basic summation or Ricci blend.
+        
+  objects/polygonizer.lua
+      - A 2d implicit surface polygonizer. Handles polygonization of a set of
+        primitives. Uses continuation algorithm to find boudary of surface.
+        Constructs polygonized data for use with collisions and graphics drawing.
+        
+  objects/collider.lua
+      - A fixed grid spatial partition. Handles insertion/deletion/updates of 
+        points and axis-aligned bounding boxes. Used for querying boids in a flock
+        and primitives for the polygonizer.
+        
+  states/*
+      - Directory contains all states of the program (slides and interactive
+        demos). Each state contains load, update, draw and user input callbacks.
+     
+      
+      
+

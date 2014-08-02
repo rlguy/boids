@@ -116,7 +116,7 @@ function love.load(args)
   
   BOIDS:add_state(states.exit_screen_state, "exit_screen_state")
   
-  BOIDS:load_state("exit_screen_state")
+  BOIDS:load_state("main_screen_load_state")
   
   love.mouse.setVisible(false)
   
