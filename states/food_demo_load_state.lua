@@ -49,7 +49,7 @@ function food_demo_load.construct_level_map(level)
   local blend = 0.02
   local g_background = tile_gradient:new(require( dir.."orange1"), ncolors)
   local g_wall1 = tile_gradient:new(require( dir.."allwhite"), ncolors)
-  local g_black = tile_gradient:new(require( dir.."allblack"), ncolors)
+  local g_black = tile_gradient:new(require( dir.."orange"), ncolors)
                                          
   g_wall1:add_diagonals()
   g_wall1:add_border(C_BLACK, blend)

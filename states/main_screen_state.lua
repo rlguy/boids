@@ -15,6 +15,8 @@ function main_screen_state.keypressed(key)
     
     if not state.boids_spawned then
       local offx, offy, _, _ = state.level:get_camera():get_viewport()
+      offx = offx + 0.5 * SCR_WIDTH - 0.5 * state.slide_img:getWidth()
+      offy = offy + 0.5 * SCR_HEIGHT - 0.5 * state.slide_img:getHeight()
       local locations = state.boid_locations
       for i=1,#locations do
         local dx, dy = random_direction2()

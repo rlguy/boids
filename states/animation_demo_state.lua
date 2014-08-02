@@ -49,7 +49,7 @@ function animation_demo_state.load(level)
   --state.emitter:set_dead_zone( 0, 4000, 3000, 100)
   state.emitter:set_emission_rate(30)
   --state.emitter:set_waypoint(x, 3000, z)
-  state.emitter:set_boid_limit(600)
+  state.emitter:set_boid_limit(400)
   state.emitter:start_emission()
 
   local spritesheet = love.graphics.newImage("images/animations/boidsheet.png")

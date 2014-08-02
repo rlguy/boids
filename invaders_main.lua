@@ -1,17 +1,24 @@
 math.randomseed(os.time())
 for i=1,5 do math.random() end
 
+local scrnum = 0
 function love.keypressed(key, unicode)
 
   if key == "escape" then
     love.event.push('quit')
   end
   
-  if DEBUG and key == '1' then
+  if (DEBUG or true) and key == '1' then
     FREEZE = not FREEZE
   end
 
   INVADERS:keypressed(key)
+  
+  if key == "p" then
+    local screenshot = love.graphics.newScreenshot()
+    screenshot:encode(tostring(scrnum)..".png")
+    scrnum = scrnum + 1
+  end
 end
 function love.keyreleased(key)
   INVADERS:keyreleased(key)
@@ -116,7 +123,7 @@ function love.load(args)
 end
 
 function love.update(dt)
-  if DEBUG then
+  if DEBUG or true then
     if FREEZE then
       return
     end
