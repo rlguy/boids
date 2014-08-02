@@ -29,6 +29,20 @@ function food_demo_state.keyreleased(key)
   state.flock:keyreleased(key)
 end
 function food_demo_state.mousepressed(x, y, button)
+   if button == "l" then
+    local b = state.speedb
+    if b.slow.bbox:contains_coordinate(x, y) then
+      b.slow.state = not b.slow.state
+      b.fast.state = false
+      return
+    end
+    if b.fast.bbox:contains_coordinate(x, y) then
+      b.slow.state = false
+      b.fast.state = not b.fast.state
+      return
+    end
+  end
+
   state.flock:mousepressed(x, y, button)
   
   -- mouse wheel up/down changes obstacle_size
@@ -111,6 +125,31 @@ function food_demo_state.load(level)
   state.is_fade_active = false
   state.current_time = 0
   state.fade_text = nil
+  
+  -- speed up/slow down buttons
+  local speedb = {}
+  local text = "slow down"
+  local tw1, th1 = FONTS.bebas_smallest:getWidth(text), FONTS.bebas_smallest:getHeight(text)
+  local pad = 5
+  local offx, offy = 5, 0
+  local x, y = 0 + offx, SCR_HEIGHT - th1 + offy
+  speedb.slow = {font = FONTS.bebas_smallest,
+                 text = text,
+                 state = false,
+                 x = x,
+                 y = y,
+                 bbox = bbox:new(x-pad, y-pad, tw1 + 2*pad, th1 + 2*pad)}
+  local text = "speed up"
+  local tw2, th2 = FONTS.bebas_smallest:getWidth(text), FONTS.bebas_smallest:getHeight(text)
+  local offx, offy = 10, 0
+  local x, y = x + tw1 + offx, SCR_HEIGHT - th2 + offy
+  speedb.fast = {font = FONTS.bebas_smallest,
+                 text = text,
+                 state = false,
+                 x = x,
+                 y = y,
+                 bbox = bbox:new(x-pad, y-pad, tw2 + 2*pad, th2 + 2*pad)}
+  state.speedb = speedb
 end
 
 
@@ -127,20 +166,25 @@ function food_demo_state.update(dt)
   local target = vector2:new(cpos.x, cpos.y)
   local tx, ty = 0, 0
   local speed = 1000
-  if lk.isDown("w") then
+  if lk.isDown("w", "up") then
     ty = ty - speed * dt
   end
-  if lk.isDown("a") then
+  if lk.isDown("a", "left") then
     tx = tx - speed * dt
   end
-  if lk.isDown("s") then
+  if lk.isDown("s", "down") then
     ty = ty + speed * dt
   end
-  if lk.isDown("d") then
+  if lk.isDown("d", "right") then
     tx = tx + speed * dt
   end
   target.x, target.y = target.x + tx, target.y + ty
   cam:set_target(target, true)
+  
+  local b = state.speedb
+  if b.slow.state then dt = dt / 10 end
+  if b.fast.state then dt = dt * 3 end
+  if dt > 1/20 then dt = 1/20 end
 
   state.food_source:update(dt)
   state.emitter:update(dt)
@@ -266,8 +310,23 @@ function food_demo_state.draw()
     lg.print(state.fade_text, x, y)
   end
   
-
+  -- draw speed buttons
+  local b = state.speedb
+  if b.slow.state then
+    lg.setColor(0, 255, 0, 255)
+  else
+    lg.setColor(0, 0, 0, 100)
+  end
+  lg.setFont(b.slow.font)
+  lg.print(b.slow.text, b.slow.bbox.x, b.slow.bbox.y)
   
+  if b.fast.state then
+    lg.setColor(0, 255, 0, 255)
+  else
+    lg.setColor(0, 0, 0, 100)
+  end
+  lg.setFont(b.fast.font)
+  lg.print(b.fast.text, b.fast.bbox.x, b.fast.bbox.y)
 end
 
 return food_demo_state

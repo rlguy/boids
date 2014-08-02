@@ -26,6 +26,10 @@ end
 function love.mousepressed(x, y, button)
   local mpos = MOUSE_INPUT:get_position()
   BOIDS:mousepressed(mpos.x, mpos.y, button)
+  
+  if button == "l" and STATES.continue_button.bbox:contains_coordinate(mpos.x, mpos.y) then
+    love.keypressed("return")
+  end
 end
 function love.mousereleased(x, y, button)
   local mpos = MOUSE_INPUT:get_position()
@@ -57,20 +61,19 @@ function love.load(args)
   ACTIVE_AREA_HEIGHT= 2080
   RED, GREEN, BLUE, ALPHA = 1, 2, 3, 4
   
-  -- assets
+  -- global assets
   require("boids_utils")
   require("boids_math")
   require("table_utils")
   local object_loader = require("object_loader")
   object_loader.load_objects()
   FONTS = require("font_loader")
-  
   MASTER_TIMER = master_timer:new()
   MOUSE_INPUT = mouse_input:new()
-  love.mouse.setVisible(false)
 
-  -- states
+  -- construct state machine
   local states = require('state_loader')
+  STATES = states
   BOIDS = state_manager:new()
   BOIDS:add_state(states.main_screen_load_state, "main_screen_load_state")
   BOIDS:add_state(states.main_screen_state, "main_screen_state")
@@ -99,6 +102,10 @@ function love.load(args)
   BOIDS:add_state(states.food_demo_load_state, "food_demo_load_state")
   BOIDS:add_state(states.food_demo_state, "food_demo_state")
   
+  BOIDS:add_state(states.emitter_screen_state, "emitter_screen_state")
+  BOIDS:add_state(states.emitter_demo_load_state, "emitter_demo_load_state")
+  BOIDS:add_state(states.emitter_demo_state, "emitter_demo_state")
+  
   BOIDS:add_state(states.graph_screen_state, "graph_screen_state")
   BOIDS:add_state(states.graph_demo_load_state, "graph_demo_load_state")
   BOIDS:add_state(states.graph_demo_state, "graph_demo_state")
@@ -107,30 +114,52 @@ function love.load(args)
   BOIDS:add_state(states.animation_demo_load_state, "animation_demo_load_state")
   BOIDS:add_state(states.animation_demo_state, "animation_demo_state")
   
-  BOIDS:add_state(states.emitter_screen_state, "emitter_screen_state")
-  BOIDS:add_state(states.emitter_demo_load_state, "emitter_demo_load_state")
-  BOIDS:add_state(states.emitter_demo_state, "emitter_demo_state")
+  BOIDS:add_state(states.exit_screen_state, "exit_screen_state")
   
-  BOIDS:load_state("main_screen_load_state")
-  --BOIDS:load_state("emitter_screen_state")
-
+  BOIDS:load_state("exit_screen_state")
+  
+  love.mouse.setVisible(false)
+  
+  lg.setFont(FONTS.bebas_smallest)
+  local text = "Press [ enter ] to continue"
+  local tw, th = FONTS.bebas_smallest:getWidth(text), FONTS.bebas_smallest:getHeight(text)
+  local pad = 5
+  local x, y = SCR_WIDTH - tw - pad, SCR_HEIGHT - th - pad
+  lg.setColor(255, 255, 255, 100)
+  lg.print(text, x, y)
+  STATES.continue_button = {font = FONTS.bebas_smallest,
+                     text = text,
+                     bbox = bbox:new(x, y, tw+2*pad, th+2*pad),
+                     color = {255, 255, 255, 255}}
 end
 
 function love.update(dt)
-  if DEBUG or true then
-    if FREEZE then
-      return
-    end
-  
-    if love.keyboard.isDown('z') then dt = dt / 16 end
-    if love.keyboard.isDown('x') then dt = dt * 3 end
+  if FREEZE then
+    return
   end
+  
+  if love.keyboard.isDown('z') then dt = dt / 16 end
+  if love.keyboard.isDown('x') then dt = dt * 3 end
   
   dt = math.min(dt, 1/20)
 
   MASTER_TIMER:update(dt)
   MOUSE_INPUT:update(dt)
   BOIDS:update(dt)
+  
+  local b = STATES.continue_button
+  local mx, my = MOUSE_INPUT:get_position():get_vals()
+  if b.bbox:contains_coordinate(mx, my) then
+    b.color[4] = 255
+  else
+    b.color[4] = 100
+  end
+  
+  if lk.isDown('`') then -- tilde
+    DEBUG = true
+  else
+    DEBUG = false
+  end
 end
 
 function love.draw()
@@ -144,6 +173,12 @@ function love.draw()
     lg.setColor(255, 0, 0, 255)
     lg.print("FPS "..love.timer.getFPS(), 0, 0)
   end
+  
+  local b = STATES.continue_button
+  lg.setFont(b.font)
+  lg.setColor(b.color)
+  lg.print(b.text, b.bbox.x, b.bbox.y)
+  
 end
 
 

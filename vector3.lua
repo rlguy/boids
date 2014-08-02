@@ -9,7 +9,6 @@ function vector3.set_zero(v)
   v.x, v.y, v.z = 0, 0, 0
 end
 
-
 function vector3.clone(source, clone)
   clone.x, clone.y, clone.z = source.x, source.y, source.z
 end
