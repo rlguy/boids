@@ -2,6 +2,7 @@ local emitter_demo_load_state = state:new()
 emitter_demo_load_state.label = 'emitter_demo_load_state'
 
 local state = emitter_demo_load_state
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

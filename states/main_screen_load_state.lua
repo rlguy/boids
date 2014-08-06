@@ -2,6 +2,7 @@ local main_screen_load = state:new()
 main_screen_load.label = 'main_screen_load'
 
 local state = main_screen_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

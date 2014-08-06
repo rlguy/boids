@@ -2,6 +2,7 @@ local rules_demo_load = state:new()
 rules_demo_load.label = 'rules_demo_load'
 
 local state = rules_demo_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

@@ -1,7 +1,9 @@
 local animation_demo_load_state = state:new()
+
 animation_demo_load_state.label = 'animation_demo_load_state'
 
 local state = animation_demo_load_state
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

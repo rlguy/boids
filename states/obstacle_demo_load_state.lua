@@ -2,6 +2,7 @@ local obstacle_demo_load = state:new()
 obstacle_demo_load.label = 'obstacle_demo_load'
 
 local state = obstacle_demo_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

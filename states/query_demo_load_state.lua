@@ -2,6 +2,7 @@ local query_demo_load = state:new()
 query_demo_load.label = 'query_demo_load'
 
 local state = query_demo_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

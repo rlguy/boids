@@ -19,6 +19,10 @@ function love.keypressed(key, unicode)
     screenshot:encode(tostring(scrnum)..".png")
     scrnum = scrnum + 1
   end
+  
+  if key == "backspace" then
+    BOIDS:load_previous_state()
+  end
 end
 function love.keyreleased(key)
   BOIDS:keyreleased(key)

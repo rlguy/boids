@@ -2,6 +2,7 @@ local flockmates_demo_load = state:new()
 flockmates_demo_load.label = 'flockmates_demo_load'
 
 local state = flockmates_demo_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--

@@ -2,6 +2,7 @@ local food_demo_load = state:new()
 food_demo_load.label = 'food_demo_load'
 
 local state = food_demo_load
+state:set_as_loading_state()
 
 --##########################################################################--
 --[[----------------------------------------------------------------------]]--
