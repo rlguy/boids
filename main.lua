@@ -12,7 +12,7 @@ local function start_game(scr_width, scr_height, is_fullscreen)
 end
 
 function love.load(args)
-  require("boids_utils")
+  require("table_utils")
   local utils = require("boids_utils")
   local settings = utils.load_graphics_settings()
   start_game(settings.window_width, settings.window_height, settings.fullscreen)

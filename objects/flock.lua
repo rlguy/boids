@@ -14,6 +14,7 @@ fk.free_boids = nil
 fk.active_boids = nil
 fk.collider_cell_width = 150
 fk.collider_cell_height = 150
+fk.draw_boids = nil
 
 fk.user_interface = nil
 
@@ -30,6 +31,7 @@ function fk:new(level, x, y, width, height, depth)
   fk:_init_collider()
   
   fk.user_interface = flock_interface:new(level, fk)
+  fk.draw_boids = {}
   
   return fk
 end
@@ -178,10 +180,21 @@ function fk:_update_boids(dt)
     self.active_boids[i]:update(dt)
   end
   
-  -- sort by depth for correct draw order
-  table.sort(self.active_boids, function(a, b) 
+  -- find boids on screen and sort by depth for correct draw order
+  local padx, pady = 200, 500
+  local w, h = SCR_WIDTH + 2*padx, SCR_HEIGHT + 2*pady
+  local cx, cy = self.level:get_camera():get_viewport()
+  local bbox = self.temp_collision_bbox
+  bbox.x, bbox.y = cx - padx, cy - pady
+  bbox.width, bbox.height = w, h
+  local objects = self.draw_boids
+  table.clear(objects)
+  self.collider:get_objects_at_bbox(bbox, objects)
+  
+  table.sort(objects, function(a, b) 
                                   return a.position.z < b.position.z
                                 end)
+
 end
 
 function fk:update(dt)
@@ -193,11 +206,11 @@ end
 
 ------------------------------------------------------------------------------
 function fk:draw()
-  for i=1,#self.active_boids do
-    self.active_boids[i]:draw_shadow()
+  for i=1,#self.draw_boids do
+    self.draw_boids[i]:draw_shadow()
   end
-  for i=1,#self.active_boids do
-    self.active_boids[i]:draw()
+  for i=1,#self.draw_boids do
+    self.draw_boids[i]:draw()
   end
 
   self.user_interface:draw()

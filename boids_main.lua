@@ -70,6 +70,7 @@ function love.load(args)
   FONTS = require("font_loader")
   MASTER_TIMER = master_timer:new()
   MOUSE_INPUT = mouse_input:new()
+  MOUSE_INPUT:init()
 
   -- construct state machine
   local states = require('state_loader')

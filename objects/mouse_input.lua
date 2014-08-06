@@ -68,13 +68,25 @@ function mouse_input:set_boundary(x, y, width, height)
   self.x, self.y, self.width, self.height = x, y, width, height
 end
 
-
+--[[
 function mouse_input:get_position()
   return self.screen_pos
 end
+]]--
 
+function mouse_input:get_position()
+  self.screen_pos.x, self.screen_pos.y = love.mouse.getPosition()
+  return self.screen_pos
+end
+
+--[[
 function mouse_input:get_coordinates()
   return self.screen_pos.x, self.screen_pos.y
+end
+]]--
+
+function mouse_input:get_coordinates()
+  return love.mouse.getPosition()
 end
 
 -- press time for left button
@@ -82,9 +94,14 @@ function mouse_input:get_left_time_pressed()
   return self.left_press_timer:time_elapsed()
 end
 
-
+--[[
 function mouse_input:get_vals()
   return self.screen_pos.x, self.screen_pos.y
+end
+]]--
+
+function mouse_input:get_vals()
+  return love.mouse.getPosition()
 end
 
 
@@ -103,6 +120,7 @@ function mouse_input:is_down(button)
 end
 
 ------------------------------------------------------------------------------
+--[[
 function mouse_input:update(dt)
   -- scale diffence between reference and new position
   local last_pos = self.reference_pos
@@ -127,12 +145,30 @@ function mouse_input:update(dt)
   end
   
 end
+]]--
+
+function mouse_input:update(dt)
+  
+end
 
 ------------------------------------------------------------------------------
+--[[
 function mouse_input:draw()
   lg.setColor(0, 0, 0, 255)
   lg.setPointSize(3)
   local x, y = self.screen_pos:get_vals()
+  local len = 10
+  lg.setLineWidth(2)
+  lg.line(x, y, x, y + len)
+  lg.line(x, y, x + 0.7 * len, y + len - 3)
+  
+end
+]]--
+
+function mouse_input:draw()
+  lg.setColor(0, 0, 0, 255)
+  lg.setPointSize(3)
+  local x, y = love.mouse.getPosition()
   local len = 10
   lg.setLineWidth(2)
   lg.line(x, y, x, y + len)

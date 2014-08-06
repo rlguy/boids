@@ -4,6 +4,8 @@ This program is an implementation of a boid flocking behaviour simulation.
 Features include basic boid rules (alignment, cohersion, separation), obstacle 
 avoidance, and food sources.
 
+The implementation is written in Lua and uses the LOVE framework (http://love2d.org).
+
 Description of Important Files:
   objects/boid.lua          
       - Routines for updating orientation and position of a single boid

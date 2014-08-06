@@ -1,19 +1,24 @@
+require("table_utils")
 local utils = {}
 
 utils.load_graphics_settings = function()
   local function initialize_graphics_settings()
-    -- find large window size
+
+    -- find largest window size through modes
+    -- and cap dimensions to 1920x1080
     local modes = love.window.getFullscreenModes()
     table.sort(modes, function(a, b) 
                         return a.width*a.height > b.width*b.height
                       end)
+    local fs_width, fs_height = modes[1].width, modes[1].height
+    fs_width, fs_height = math.min(fs_width, 1920), math.min(fs_height, 1080)
     
-    -- set default size to largest fullscreen size padded so that window is
+    -- set default size to fullscreen size padded so that window is
     -- not too large
     local width_pad = 100
     local height_pad = 100
-    local width = modes[1].width - width_pad
-    local height = modes[1].height - height_pad
+    local width = fs_width - width_pad
+    local height = fs_height - height_pad
                       
     local default_settings = require("config/default_graphics_settings")
     default_settings.window_width = width
