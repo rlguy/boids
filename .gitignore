@@ -1,13 +1,1 @@
 *.*~
-level_editor/gradients/*
-audio/*
-level_editor/fonts/*
-level_editor/tilemap_images/*
-level_editor/tile_layer_smoother/*.png
-generation/gradients/*
-images/*
-generation/curves/*
-curves/*
-gradients/*
-level_editor/curve_editor/bbox.lua
-level_editor/curve_editor/cubic_spline.lua

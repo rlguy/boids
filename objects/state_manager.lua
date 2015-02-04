@@ -84,14 +84,7 @@ function state_manager:load_previous_state(...)
     end
   end
   
-  local state_key = nil
-  for k,v in pairs(self.states_by_key) do
-    if v == prev_state then
-      state_key = k
-      break
-    end
-  end
-  
+  local state_key = prev_state:get_key()
   self:load_state(state_key, ...)
 end
 

@@ -37,6 +37,8 @@ bd.max_boundary_reflect_angle = math.pi / 3  -- boundary rule vector is reflecte
                                              -- and boid direction is less than this
                                              -- angle.
                                              -- helps boids steer away from boundary
+
+                                             
 bd.neighbours = nil
 bd.neighbours_in_view = nil
 bd.frames_per_neighbour_update = 20
